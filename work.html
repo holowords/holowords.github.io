@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Work — holo words</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body data-page="work-detail">
+  <a class="work-detail__back" href="index.html#work">← 목록으로</a>
+  <div class="work-detail">
+    <div class="work-detail__number" id="work-number"></div>
+    <div class="work-detail__title" id="work-title"></div>
+  </div>
+
+  <script src="js/work-data.js"></script>
+  <script src="js/drive-config.js"></script>
+  <script src="js/drive-words.js"></script>
+  <script>
+    (async () => {
+      const params = new URLSearchParams(location.search);
+      const id = Number(params.get("id"));
+      const index = WORK_ITEMS.findIndex((w) => w.id === id);
+      const item = WORK_ITEMS[index];
+
+      if (!item) {
+        document.getElementById("work-title").textContent = "준비 중입니다.";
+        return;
+      }
+
+      document.getElementById("work-number").textContent = `${item.id}호`;
+
+      try {
+        const words = await fetchDriveWords();
+        document.getElementById("work-title").textContent =
+          (words[index] && words[index].title) || "준비 중입니다.";
+      } catch (err) {
+        document.getElementById("work-title").textContent = "불러오지 못했습니다.";
+        console.error(err);
+      }
+    })();
+  </script>
+</body>
+</html>

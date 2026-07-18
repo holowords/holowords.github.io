@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -m http.server 8934)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:8934/index.html)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:8934/words.html)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:8934/work.html?id=15)",
+      "Read(//private/tmp/**)",
+      "Bash(curl -sv http://localhost:8934/index.html)",
+      "Skill(run)",
+      "Skill(run:*)",
+      "Bash(command -v playwright)",
+      "Bash(find / -maxdepth 6 -iname \"*chromium-cli*\")",
+      "Read(//Users/hj/.claude/**)",
+      "Bash(find / -maxdepth 4 -iname \"*chromium*\" -type d)",
+      "Bash(command -v node)",
+      "Bash(npx --yes playwright --version)",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --no-sandbox --window-size=1440,900 --screenshot=/private/tmp/claude-501/-Users-hj-Desktop----------/4d519147-a3d5-4751-83c4-81f55e9df3ea/scratchpad/shots/about.png 'http://localhost:8934/index.html#about')",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --no-sandbox --window-size=1440,900 --screenshot=/private/tmp/claude-501/-Users-hj-Desktop----------/4d519147-a3d5-4751-83c4-81f55e9df3ea/scratchpad/shots/work.png 'http://localhost:8934/index.html#work')",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --no-sandbox --window-size=1440,900 --screenshot=/private/tmp/claude-501/-Users-hj-Desktop----------/4d519147-a3d5-4751-83c4-81f55e9df3ea/scratchpad/shots/contact.png 'http://localhost:8934/index.html#contact')",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --no-sandbox --window-size=1440,900 --screenshot=/private/tmp/claude-501/-Users-hj-Desktop----------/4d519147-a3d5-4751-83c4-81f55e9df3ea/scratchpad/shots/words.png http://localhost:8934/words.html)",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --no-sandbox --window-size=1440,6000 --virtual-time-budget=4000 --run-all-compositor-stages-before-draw --screenshot=/private/tmp/claude-501/-Users-hj-Desktop----------/4d519147-a3d5-4751-83c4-81f55e9df3ea/scratchpad/shots/index-full2.png http://localhost:8934/index.html)"
+    ]
+  }
+}

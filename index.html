@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>holo words</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Manrope:wght@700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body data-page="home">
+  <nav class="site-nav">
+    <div class="site-nav__links">
+      <a href="#about" data-nav="about">About</a>
+      <a href="#work" data-nav="work">Work</a>
+      <a href="words.html" data-nav="words">Words</a>
+      <a href="#contact" data-nav="contact">Contact</a>
+    </div>
+
+    <form class="nav-search" id="search-box" autocomplete="off">
+      <input type="text" id="search-input" class="nav-search__input" placeholder="들리는 단어나 음절을 입력해 보세요." />
+      <button type="submit" class="nav-search__button">검색</button>
+    </form>
+    <span class="nav-search__count" id="word-count"></span>
+  </nav>
+
+  <section id="about">
+    <div>
+      <h1 class="identity-mark" id="identity-mark">holo words</h1>
+      <p class="identity-sub">홀로둥이의 단어</p>
+    </div>
+  </section>
+
+  <section id="work">
+    <div class="work-grid" id="work-grid"></div>
+  </section>
+
+  <section id="contact">
+    <h2>Contact</h2>
+    <p>hello@holowords.com</p>
+  </section>
+
+  <script>
+    (() => {
+      const el = document.getElementById("identity-mark");
+      const chars = Array.from(el.textContent);
+      el.textContent = "";
+      el.classList.add("typing");
+
+      let i = 0;
+      const timer = setInterval(() => {
+        el.textContent += chars[i];
+        i++;
+        if (i >= chars.length) {
+          clearInterval(timer);
+          el.classList.remove("typing");
+        }
+      }, 220);
+    })();
+  </script>
+  <script src="js/work-data.js"></script>
+  <script src="js/drive-config.js"></script>
+  <script src="js/drive-words.js"></script>
+  <script>
+    (async () => {
+      const grid = document.getElementById("work-grid");
+      const searchForm = document.getElementById("search-box");
+      const searchInput = document.getElementById("search-input");
+      const wordCount = document.getElementById("word-count");
+
+      searchForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const q = searchInput.value.trim();
+        location.href = q ? `words.html?q=${encodeURIComponent(q)}` : "words.html";
+      });
+
+      let words = [];
+      try {
+        words = await fetchDriveWords();
+        wordCount.textContent = `총 ${words.length}개`;
+      } catch (err) {
+        console.error(err);
+      }
+
+      const titleEls = [];
+
+      WORK_ITEMS.forEach((item, i) => {
+        const card = document.createElement("a");
+        card.className = "work-card";
+        card.href = `work.html?id=${item.id}`;
+        card.target = "_blank";
+        card.rel = "noopener noreferrer";
+        card.style.backgroundColor = item.bg;
+        card.style.color = item.color;
+
+        const wordTitle = words[i] && words[i].title;
+        if (wordTitle) {
+          const title = document.createElement("span");
+          title.className = "work-card__title";
+          title.textContent = wordTitle;
+          card.appendChild(title);
+          titleEls.push(title);
+        }
+
+        grid.appendChild(card);
+      });
+
+      // Keep card titles alive: each one periodically flips to a fresh random
+      // word from the Drive list, staggered per card so they don't flip in sync.
+      if (words.length > 1) {
+        titleEls.forEach((el) => {
+          setInterval(() => {
+            const random = words[Math.floor(Math.random() * words.length)].title;
+            el.classList.add("work-card__title--fade");
+            setTimeout(() => {
+              el.textContent = random;
+              el.classList.remove("work-card__title--fade");
+            }, 200);
+          }, 2500 + Math.random() * 3000);
+        });
+      }
+    })();
+  </script>
+  <script src="js/nav.js"></script>
+</body>
+</html>

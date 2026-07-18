@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --no-sandbox --window-size=1440,900 --virtual-time-budget=3000 --run-all-compositor-stages-before-draw --screenshot=/private/tmp/claude-501/-Users-hj-Desktop----------/4d519147-a3d5-4751-83c4-81f55e9df3ea/scratchpad/shots/work2.png 'http://localhost:8934/index.html#work')",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --no-sandbox --window-size=1440,900 --virtual-time-budget=3000 --run-all-compositor-stages-before-draw --screenshot=/private/tmp/claude-501/-Users-hj-Desktop----------/4d519147-a3d5-4751-83c4-81f55e9df3ea/scratchpad/shots/contact2.png 'http://localhost:8934/index.html#contact')",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --no-sandbox --window-size=1440,900 --virtual-time-budget=3000 --screenshot=/private/tmp/claude-501/-Users-hj-Desktop----------/4d519147-a3d5-4751-83c4-81f55e9df3ea/scratchpad/shots/work3.png 'http://localhost:8934/index.html#work')",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --no-sandbox --window-size=1440,900 --virtual-time-budget=3000 --screenshot=/private/tmp/claude-501/-Users-hj-Desktop----------/4d519147-a3d5-4751-83c4-81f55e9df3ea/scratchpad/shots/contact3.png 'http://localhost:8934/index.html#contact')",
+      "Bash(python3 -c \"import websockets\")",
+      "Bash(python3 -c \"import websocket\")",
+      "Bash(pip3 list *)"
+    ]
+  }
+}

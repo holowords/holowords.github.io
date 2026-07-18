@@ -1,0 +1,556 @@
+/* ==========================================================================
+   holo words — shared styles
+   ========================================================================== */
+
+:root {
+  --nav-height: 64px;
+  --cream: #f7f1de;
+  --grid-line: #c9c2ae;
+  --ink: #1a1a1a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Malgun Gothic", sans-serif;
+  color: var(--ink);
+  background: #fff;
+  padding-top: var(--nav-height);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Navigation                                                              */
+/* ---------------------------------------------------------------------- */
+
+.site-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--nav-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 0 24px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid #e5e0d0;
+  z-index: 1000;
+  flex-wrap: wrap;
+}
+
+.site-nav__links {
+  display: flex;
+  align-items: center;
+  gap: 48px;
+  margin: 0 auto;
+}
+
+.site-nav a {
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  padding: 8px 4px;
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.site-nav a:hover {
+  border-bottom-color: var(--ink);
+}
+
+.site-nav a.active {
+  border-bottom-color: var(--ink);
+  font-weight: 600;
+}
+
+.nav-search {
+  display: flex;
+  align-items: stretch;
+  height: 34px;
+  flex-shrink: 0;
+  background: #fff;
+  border: 1px solid var(--ink);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.nav-search__input {
+  width: 200px;
+  min-width: 0;
+  border: none;
+  background: none;
+  padding: 0 12px;
+  font: inherit;
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 12px;
+  color: var(--ink);
+  outline: none;
+}
+
+.nav-search__input::placeholder {
+  color: #999;
+}
+
+.nav-search__button {
+  flex-shrink: 0;
+  border: none;
+  border-left: 1px solid var(--ink);
+  background: none;
+  padding: 0 14px;
+  font: inherit;
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.nav-search__button:hover {
+  background: rgba(26, 26, 26, 0.05);
+}
+
+.nav-search__count {
+  font-size: 12px;
+  color: #666;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ---------------------------------------------------------------------- */
+/* About / identity section                                               */
+/* ---------------------------------------------------------------------- */
+
+#about {
+  scroll-margin-top: var(--nav-height);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background-color: var(--cream);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cline x1='40' y1='0' x2='40' y2='40' stroke='%23c9c2ae' stroke-width='1' stroke-dasharray='2,3'/%3E%3Cline x1='0' y1='40' x2='40' y2='40' stroke='%23c9c2ae' stroke-width='1' stroke-dasharray='2,3'/%3E%3C/svg%3E");
+  background-size: 40px 40px;
+  text-align: center;
+  padding: 80px 24px;
+}
+
+.identity-mark {
+  font-family: "Manrope", sans-serif;
+  font-size: clamp(48px, 9vw, 120px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #1a1a1abf;
+  margin: 0;
+  line-height: 1;
+}
+
+.identity-mark.typing::after {
+  content: "|";
+  margin-left: 0.05em;
+  animation: word-panel-cursor-blink 0.8s step-end infinite;
+}
+
+.identity-sub {
+  margin-top: 20px;
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: clamp(14px, 2vw, 18px);
+  letter-spacing: 0.08em;
+  color: #1a1a1abf;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Work grid section                                                      */
+/* ---------------------------------------------------------------------- */
+
+#work {
+  scroll-margin-top: var(--nav-height);
+}
+
+.work-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.work-card {
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  transition: opacity 0.2s ease;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cline x1='40' y1='0' x2='40' y2='40' stroke='%23ffffff' stroke-width='1' stroke-dasharray='2,3'/%3E%3Cline x1='0' y1='40' x2='40' y2='40' stroke='%23ffffff' stroke-width='1' stroke-dasharray='2,3'/%3E%3C/svg%3E");
+  background-size: 40px 40px;
+  background-blend-mode: soft-light;
+}
+
+.work-card__title {
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.5;
+  background-image: linear-gradient(120deg, #fff176 0%, #fff176 100%);
+  background-repeat: no-repeat;
+  background-size: 0% 45%;
+  background-position: 50% 88%;
+  transition: opacity 0.2s ease, background-size 0.25s ease;
+}
+
+.work-card:hover .work-card__title {
+  background-size: 100% 45%;
+}
+
+.work-card__title--fade {
+  opacity: 0;
+}
+
+@media (max-width: 900px) {
+  .work-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .work-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Contact (dummy)                                                        */
+/* ---------------------------------------------------------------------- */
+
+#contact {
+  scroll-margin-top: var(--nav-height);
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: var(--ink);
+  color: #fff;
+  padding: 80px 24px;
+  text-align: center;
+}
+
+#contact h2 {
+  font-size: clamp(28px, 5vw, 44px);
+  margin: 0;
+}
+
+#contact p {
+  opacity: 0.7;
+  margin: 0;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Words page                                                             */
+/* ---------------------------------------------------------------------- */
+
+.words-page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 64px 24px 160px;
+}
+
+.words-search-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #555;
+}
+
+.words-search-banner__clear {
+  font-size: 13px;
+  color: #888;
+  text-decoration: underline;
+  flex-shrink: 0;
+}
+
+.words-search-banner__clear:hover {
+  color: var(--ink);
+}
+
+/* Tabs: "전체" (flowing list) vs "목록" (fixed ㄱ~ㅎ index) */
+
+.words-tabs {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 40px;
+  border-bottom: 1px solid #e5e0d0;
+}
+
+.words-tab {
+  background: none;
+  border: none;
+  font: inherit;
+  font-size: 15px;
+  padding: 10px 4px 12px;
+  margin-bottom: -1px;
+  cursor: pointer;
+  color: #999;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.words-tab:hover {
+  color: var(--ink);
+}
+
+.words-tab.active {
+  color: var(--ink);
+  font-weight: 700;
+  border-bottom-color: var(--ink);
+}
+
+.words-view--flow {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* "목록" view: ㄱ~ㅎ fixed on the left, word list scrolls on the right */
+
+.words-view--index {
+  display: flex;
+  align-items: flex-start;
+  gap: 32px;
+}
+
+.words-index {
+  position: sticky;
+  top: calc(var(--nav-height) + 32px);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0;
+  width: 48px;
+}
+
+.words-index__link {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 6px 0;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #999;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.words-index__link:hover {
+  color: var(--ink);
+}
+
+.words-index__link.active {
+  color: var(--ink);
+  background: var(--cream);
+}
+
+.words-index-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.words-group {
+  margin-bottom: 48px;
+}
+
+.words-group__header {
+  font-size: 28px;
+  font-weight: 800;
+  border-bottom: 2px solid var(--ink);
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+  position: sticky;
+  top: var(--nav-height);
+  background: #fff;
+}
+
+.words-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.words-list li {
+  border-bottom: 1px solid #eee;
+}
+
+.word-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  font: inherit;
+  font-family: "Gowun Dodum", sans-serif;
+  padding: 16px 4px;
+  cursor: pointer;
+  font-size: 17px;
+  color: var(--ink);
+}
+
+.word-item__marker {
+  font-size: 9px;
+  flex-shrink: 0;
+}
+
+.word-item__label {
+  background-image: linear-gradient(120deg, #fff176 0%, #fff176 100%);
+  background-repeat: no-repeat;
+  background-size: 0% 45%;
+  background-position: 0 88%;
+  transition: background-size 0.25s ease;
+}
+
+.word-item:hover .word-item__label {
+  background-size: 100% 45%;
+}
+
+/* Slide panel */
+
+.word-panel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  z-index: 1100;
+}
+
+.word-panel-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.word-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: min(420px, 100%);
+  background: #fff;
+  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.15);
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  z-index: 1200;
+  padding: 32px 28px;
+  overflow-y: auto;
+}
+
+.word-panel.open {
+  transform: translateX(0);
+}
+
+.word-panel__close {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  line-height: 1;
+}
+
+.word-panel__body {
+  margin-top: 16px;
+  font-size: 14px;
+  line-height: 1.8;
+  color: #333;
+  white-space: pre-line;
+}
+
+.word-panel__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+.word-panel__title {
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  text-align: center;
+  margin: 48px 0 8px;
+}
+
+.word-panel__title.typing::after {
+  content: "|";
+  margin-left: 2px;
+  animation: word-panel-cursor-blink 0.8s step-end infinite;
+}
+
+@keyframes word-panel-cursor-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.word-panel__byline {
+  font-size: 13px;
+  color: #888;
+  text-align: center;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Work detail page (blank placeholder)                                   */
+/* ---------------------------------------------------------------------- */
+
+.work-detail {
+  min-height: calc(100vh - var(--nav-height));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 24px;
+}
+
+.work-detail__back {
+  position: fixed;
+  top: 80px;
+  left: 24px;
+  font-size: 14px;
+  opacity: 0.6;
+}
+
+.work-detail__number {
+  font-size: 16px;
+  opacity: 0.5;
+  margin-bottom: 12px;
+}
+
+.work-detail__title {
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: clamp(24px, 4vw, 36px);
+  font-weight: 700;
+}

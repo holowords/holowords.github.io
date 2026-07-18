@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Words — holo words</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body data-page="words">
+  <nav class="site-nav">
+    <div class="site-nav__links">
+      <a href="index.html#about" data-nav="about">About</a>
+      <a href="index.html#work" data-nav="work">Work</a>
+      <a href="words.html" data-nav="words">Words</a>
+      <a href="index.html#contact" data-nav="contact">Contact</a>
+    </div>
+
+    <form class="nav-search" id="search-box" autocomplete="off">
+      <input type="text" id="search-input" class="nav-search__input" placeholder="들리는 단어나 음절을 입력해 보세요." />
+      <button type="submit" class="nav-search__button">검색</button>
+    </form>
+    <span class="nav-search__count" id="word-count"></span>
+  </nav>
+
+  <main class="words-page" id="words-page">
+    <div class="words-tabs" id="words-tabs">
+      <button class="words-tab active" type="button" data-view="flow">전체</button>
+      <button class="words-tab" type="button" data-view="index">목록</button>
+    </div>
+
+    <div class="words-view words-view--flow" id="words-view-flow"></div>
+
+    <div class="words-view words-view--index" id="words-view-index" hidden>
+      <nav class="words-index" id="words-index"></nav>
+      <div class="words-index-content" id="words-index-content"></div>
+    </div>
+  </main>
+
+  <div class="word-panel-overlay" id="word-panel-overlay"></div>
+  <aside class="word-panel" id="word-panel">
+    <button class="word-panel__close" id="word-panel-close" aria-label="닫기">✕</button>
+    <div class="word-panel__title" id="word-panel-title"></div>
+    <div class="word-panel__byline" id="word-panel-byline"></div>
+    <div class="word-panel__body" id="word-panel-body"></div>
+  </aside>
+
+  <script src="js/words-data.js"></script>
+  <script src="js/drive-config.js"></script>
+  <script src="js/drive-words.js"></script>
+  <script src="js/words.js"></script>
+  <script src="js/nav.js"></script>
+</body>
+</html>
