@@ -4,6 +4,7 @@
 
 :root {
   --nav-height: 64px;
+  --header-offset: var(--nav-height);
   --cream: #f7f1de;
   --grid-line: #c9c2ae;
   --ink: #1a1a1a;
@@ -22,7 +23,7 @@ body {
   font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Malgun Gothic", sans-serif;
   color: var(--ink);
   background: #fff;
-  padding-top: var(--nav-height);
+  padding-top: var(--header-offset);
 }
 
 a {
@@ -42,21 +43,18 @@ a {
   height: var(--nav-height);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 24px;
+  justify-content: center;
   padding: 0 24px;
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(6px);
   border-bottom: 1px solid #e5e0d0;
   z-index: 1000;
-  flex-wrap: wrap;
 }
 
 .site-nav__links {
   display: flex;
   align-items: center;
   gap: 48px;
-  margin: 0 auto;
 }
 
 .site-nav a {
@@ -74,6 +72,17 @@ a {
 .site-nav a.active {
   border-bottom-color: var(--ink);
   font-weight: 600;
+}
+
+.nav-search-wrap {
+  position: fixed;
+  top: 0;
+  right: 24px;
+  height: var(--nav-height);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 1001;
 }
 
 .nav-search {
@@ -134,7 +143,7 @@ a {
 /* ---------------------------------------------------------------------- */
 
 #about {
-  scroll-margin-top: var(--nav-height);
+  scroll-margin-top: var(--header-offset);
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -176,7 +185,7 @@ a {
 /* ---------------------------------------------------------------------- */
 
 #work {
-  scroll-margin-top: var(--nav-height);
+  scroll-margin-top: var(--header-offset);
 }
 
 .work-grid {
@@ -225,18 +234,12 @@ a {
   }
 }
 
-@media (max-width: 520px) {
-  .work-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
 /* ---------------------------------------------------------------------- */
 /* Contact (dummy)                                                        */
 /* ---------------------------------------------------------------------- */
 
 #contact {
-  scroll-margin-top: var(--nav-height);
+  scroll-margin-top: var(--header-offset);
   min-height: 60vh;
   display: flex;
   flex-direction: column;
@@ -337,7 +340,7 @@ a {
 
 .words-index {
   position: sticky;
-  top: calc(var(--nav-height) + 32px);
+  top: calc(var(--header-offset) + 32px);
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -386,7 +389,7 @@ a {
   padding-bottom: 8px;
   margin-bottom: 16px;
   position: sticky;
-  top: var(--nav-height);
+  top: var(--header-offset);
   background: #fff;
 }
 
@@ -526,7 +529,7 @@ a {
 /* ---------------------------------------------------------------------- */
 
 .work-detail {
-  min-height: calc(100vh - var(--nav-height));
+  min-height: calc(100vh - var(--header-offset));
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -553,4 +556,55 @@ a {
   font-family: "Gowun Dodum", sans-serif;
   font-size: clamp(24px, 4vw, 36px);
   font-weight: 700;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Mobile: search box + word count move to a white bar under the nav      */
+/* ---------------------------------------------------------------------- */
+
+@media (max-width: 640px) {
+  /* Fixed, explicit sizing (not "auto") so this bar's real height always
+     matches --mobile-topbar-height below — otherwise it can grow taller
+     than the reserved space and overlap the page content under it. */
+  body:not([data-page="work-detail"]) {
+    --mobile-topbar-height: 76px;
+    --header-offset: calc(var(--nav-height) + var(--mobile-topbar-height));
+    padding-top: var(--header-offset);
+  }
+
+  .site-nav__links {
+    gap: 24px;
+  }
+
+  .nav-search-wrap {
+    position: fixed;
+    top: var(--nav-height);
+    left: 0;
+    right: 0;
+    height: var(--mobile-topbar-height, 76px);
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: #fff;
+    border-bottom: 1px solid #e5e0d0;
+  }
+
+  .nav-search {
+    width: 100%;
+    height: 34px;
+    flex-shrink: 0;
+  }
+
+  .nav-search__input {
+    flex: 1;
+    width: auto;
+  }
+
+  .nav-search__count {
+    flex-shrink: 0;
+    line-height: 16px;
+    text-align: center;
+  }
 }
