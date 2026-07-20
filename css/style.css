@@ -43,7 +43,7 @@ a {
   height: var(--nav-height);
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   padding: 0 24px;
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(6px);
@@ -139,12 +139,32 @@ a {
 }
 
 /* ---------------------------------------------------------------------- */
-/* About / identity section                                               */
+/* About + Intro: one scroll gesture swaps the full screen from one to the
+   other, like a slide, instead of scrolling past a long stack of sections. */
 /* ---------------------------------------------------------------------- */
+
+.hero-slides {
+  /* body already pushes this down by --header-offset for the fixed nav, so
+     size it to exactly fill what's left of the viewport, not another full
+     100vh on top of that gap. */
+  height: calc(100vh - var(--header-offset));
+  overflow-y: auto;
+  /* "mandatory" + scroll-snap-stop:always looks right but fights a normal
+     mouse wheel: each wheel tick is far shorter than a full-viewport slide,
+     so the browser just springs back to where it started instead of
+     advancing — it reads as "scrolling doesn't do anything". "proximity"
+     only snaps once you're already near a boundary, so a normal scroll
+     still moves freely and only settles into place near the edge. */
+  scroll-snap-type: y proximity;
+}
+
+.hero-slides > section {
+  scroll-snap-align: start;
+}
 
 #about {
   scroll-margin-top: var(--header-offset);
-  min-height: 100vh;
+  height: calc(100vh - var(--header-offset));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -178,6 +198,163 @@ a {
   font-size: clamp(14px, 2vw, 18px);
   letter-spacing: 0.08em;
   color: #1a1a1abf;
+}
+
+.identity-sub.typing::after {
+  content: "|";
+  margin-left: 0.1em;
+  animation: word-panel-cursor-blink 0.8s step-end infinite;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Intro / manifesto section (between About and Work)                     */
+/* ---------------------------------------------------------------------- */
+
+#intro {
+  scroll-margin-top: var(--header-offset);
+  height: calc(100vh - var(--header-offset));
+  display: flex;
+  align-items: center;
+  overflow-y: auto;
+  background-color: var(--ink);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cline x1='40' y1='0' x2='40' y2='40' stroke='%23ffffff' stroke-opacity='0.12' stroke-width='1' stroke-dasharray='2,3'/%3E%3Cline x1='0' y1='40' x2='40' y2='40' stroke='%23ffffff' stroke-opacity='0.12' stroke-width='1' stroke-dasharray='2,3'/%3E%3C/svg%3E");
+  background-size: 40px 40px;
+  color: #fff;
+  padding: 100px 40px;
+}
+
+.intro__content {
+  max-width: 760px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+/* Fragments fade/slide in individually as they scroll into view (see the
+   IntersectionObserver in index.html), rather than all at once. */
+.intro__mark,
+.intro__chip,
+.intro__note {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.intro__mark.in-view,
+.intro__chip.in-view,
+.intro__note.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.intro__mark {
+  font-family: "Manrope", sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.3em;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0 0 20px;
+}
+
+/* Every gap, margin and padding in this section is a multiple of the 40px
+   grid unit the background pattern uses (or its 20px/10px half-steps), so
+   the chip edges land on grid lines instead of floating between them. */
+.intro__chip {
+  display: inline-block;
+  border: 1px dashed rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 10px 20px;
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: clamp(16px, 2.4vw, 20px);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.intro__chip--title {
+  border: none;
+  background: #a9c6ef;
+  color: var(--ink);
+  font-size: clamp(22px, 3.2vw, 28px);
+  padding: 10px 20px;
+  margin-bottom: 40px;
+}
+
+.intro__chip--highlight {
+  border-color: transparent;
+  background: #fff176;
+  color: var(--ink);
+}
+
+.intro__lead {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin: 0 0 40px;
+}
+
+.intro__body {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.intro__body-lines {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.intro__chip--line {
+  border: none;
+  background: #fff;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 400;
+  margin: 0;
+}
+
+.intro__chip--line:nth-child(2) {
+  margin-left: clamp(0px, 6vw, 40px);
+}
+
+.intro__chip--question {
+  font-size: clamp(17px, 2.4vw, 20px);
+  margin-left: clamp(0px, 12vw, 80px);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.intro__note {
+  flex-shrink: 0;
+  align-self: flex-end;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: left;
+}
+
+.intro__note-title {
+  font-family: "Manrope", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 8px;
+}
+
+.intro__note p {
+  margin: 0;
+}
+
+@media (max-width: 700px) {
+  .intro__body {
+    flex-direction: column;
+  }
+
+  .intro__note {
+    align-self: flex-start;
+  }
 }
 
 /* ---------------------------------------------------------------------- */
@@ -222,6 +399,7 @@ a {
 
 .work-card:hover .work-card__title {
   background-size: 100% 45%;
+  color: #1a1a1a;
 }
 
 .work-card__title--fade {
@@ -267,38 +445,26 @@ a {
 /* ---------------------------------------------------------------------- */
 
 .words-page {
-  max-width: 860px;
-  margin: 0 auto;
-  padding: 64px 24px 160px;
+  max-width: none;
+  margin: 0;
+  padding: 64px 60px 160px;
 }
 
-.words-search-banner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 20px;
-  font-size: 14px;
-  color: #555;
+.words-page__title {
+  font-size: 28px;
+  font-weight: 800;
+  margin: 0 0 40px;
 }
-
-.words-search-banner__clear {
-  font-size: 13px;
-  color: #888;
-  text-decoration: underline;
-  flex-shrink: 0;
-}
-
-.words-search-banner__clear:hover {
-  color: var(--ink);
-}
-
-/* Tabs: "전체" (flowing list) vs "목록" (fixed ㄱ~ㅎ index) */
 
 .words-tabs {
+  position: sticky;
+  top: var(--header-offset);
+  z-index: 10;
   display: flex;
   gap: 24px;
   margin-bottom: 40px;
+  padding-top: 16px;
+  background: #fff;
   border-bottom: 1px solid #e5e0d0;
 }
 
@@ -325,12 +491,137 @@ a {
   border-bottom-color: var(--ink);
 }
 
-.words-view--flow {
-  max-width: 720px;
+.words-placeholder {
+  color: #999;
+  font-size: 15px;
+}
+
+.words-search-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #555;
+}
+
+.words-search-banner__clear {
+  font-size: 13px;
+  color: #888;
+  text-decoration: underline;
+  flex-shrink: 0;
+}
+
+.words-search-banner__clear:hover {
+  color: var(--ink);
+}
+
+/* Center both tabs' content the same way */
+
+#words-tab-all,
+#words-tab-search {
+  max-width: 1200px;
   margin: 0 auto;
 }
 
-/* "목록" view: ㄱ~ㅎ fixed on the left, word list scrolls on the right */
+.keyword-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.keyword-chip {
+  border: none;
+  border-radius: 6px;
+  padding: 9px 16px;
+  font: inherit;
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.keyword-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+}
+
+.keyword-chip.active {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.keyword-results {
+  max-width: 1200px;
+}
+
+.words-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 30px;
+}
+
+.words-grid__card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+}
+
+.words-grid__image-wrap {
+  position: relative;
+  display: block;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.words-grid__card:hover .words-grid__image-wrap {
+  transform: translateY(-2px);
+}
+
+.words-grid__image-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(80, 80, 80, 0.2);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.words-grid__card:hover .words-grid__image-wrap::after {
+  opacity: 1;
+}
+
+.words-grid__image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  background: #f2efe6;
+}
+
+.words-grid__caption {
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 14px;
+  color: var(--ink);
+}
+
+@media (max-width: 640px) {
+  .words-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ㄱ~ㅎ fixed on the left, word list scrolls on the right */
 
 .words-view--index {
   display: flex;
@@ -339,13 +630,22 @@ a {
 }
 
 .words-index {
+  /* Must match .words-group's scroll-margin-top and .words-group__header's
+     top exactly — otherwise the left ㄱ~ㅎ button and the right-hand header
+     it maps to end up stuck at different heights when you scroll/click. */
   position: sticky;
-  top: calc(var(--header-offset) + 32px);
+  top: calc(var(--header-offset) + 60px);
   display: flex;
   flex-direction: column;
-  gap: 4px;
   flex-shrink: 0;
   width: 48px;
+  /* Breathing room above the topmost link, since consonants scrolled past
+     collapse away and the active one ends up sitting right at the top. */
+  margin-top: 20px;
+}
+
+.words-index[hidden] {
+  display: none;
 }
 
 .words-index__link {
@@ -353,6 +653,7 @@ a {
   width: 100%;
   text-align: center;
   padding: 6px 0;
+  margin-bottom: 4px;
   font: inherit;
   font-size: 15px;
   font-weight: 700;
@@ -361,7 +662,12 @@ a {
   border: none;
   cursor: pointer;
   color: #999;
-  transition: color 0.2s ease, background 0.2s ease;
+  overflow: hidden;
+  max-height: 40px;
+  opacity: 1;
+  transform: translateY(0);
+  transition: color 0.2s ease, background 0.2s ease, max-height 0.35s ease, opacity 0.3s ease,
+    transform 0.35s ease, margin 0.35s ease, padding 0.35s ease;
 }
 
 .words-index__link:hover {
@@ -370,7 +676,19 @@ a {
 
 .words-index__link.active {
   color: var(--ink);
-  background: var(--cream);
+  background: #d9d9d9;
+}
+
+/* Consonants already scrolled past rise up and vanish, instead of the list
+   just growing taller as you move down through it. */
+.words-index__link--collapsed {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-12px);
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-bottom: 0;
+  pointer-events: none;
 }
 
 .words-index-content {
@@ -380,16 +698,20 @@ a {
 
 .words-group {
   margin-bottom: 48px;
+  /* So clicking a ㄱ~ㅎ link scrolls the group's header exactly to the
+     height it sticks at (see .words-index / .words-group__header), instead
+     of landing a bit short or past it. */
+  scroll-margin-top: calc(var(--header-offset) + 60px);
 }
 
 .words-group__header {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 800;
-  border-bottom: 2px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
   padding-bottom: 8px;
   margin-bottom: 16px;
   position: sticky;
-  top: var(--header-offset);
+  top: calc(var(--header-offset) + 60px);
   background: #fff;
 }
 
@@ -458,14 +780,28 @@ a {
   top: 0;
   right: 0;
   height: 100%;
-  width: min(420px, 100%);
+  width: 50%;
   background: #fff;
-  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.15);
+  border-top-left-radius: 14px;
+  box-shadow: -30px 0 60px rgba(0, 0, 0, 0.28), -6px 0 16px rgba(0, 0, 0, 0.14);
   transform: translateX(100%);
   transition: transform 0.3s ease;
   z-index: 1200;
   padding: 32px 28px;
   overflow-y: auto;
+}
+
+/* Soft vignette along the top and inner edge, like a book page curving into
+   shadow near its spine and top fold — purely decorative, sits behind content. */
+.word-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-top-left-radius: 14px;
+  background:
+    linear-gradient(to right, rgba(0, 0, 0, 0.1), transparent 5%),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.06), transparent 6%);
 }
 
 .word-panel.open {
@@ -522,6 +858,16 @@ a {
   font-size: 13px;
   color: #888;
   text-align: center;
+}
+
+/* Panel is now wider (50vw), but its content should stay the size it was
+   at the old ~420px panel width — cap and center it instead of stretching. */
+.word-panel__title,
+.word-panel__byline,
+.word-panel__body {
+  max-width: 364px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -606,5 +952,11 @@ a {
     flex-shrink: 0;
     line-height: 16px;
     text-align: center;
+  }
+
+  /* Word detail panel covers nearly the whole screen on mobile, leaving just
+     a small sliver of the list visible on the left instead of sitting at 50%. */
+  .word-panel {
+    width: calc(100% - 32px);
   }
 }

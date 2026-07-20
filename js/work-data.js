@@ -7,10 +7,10 @@
 /* Lightness (%) per card, id 15 down to -16 — alternated so neighboring
    cards contrast rather than forming a plain gradient. */
 const GRAY_LIGHTNESS = [
-  90, 25, 60, 15, 75, 35, 55, 20,
-  45, 85, 30, 70, 18, 50, 80, 40,
-  65, 22, 78, 33, 58, 12, 88, 42,
-  28, 68, 48, 15, 82, 38, 62, 24,
+  90, 35, 60, 25, 75, 45, 55, 20,
+  35, 85, 30, 70, 18, 50, 80, 40,
+  65, 22, 78, 33, 58, 20, 88, 42,
+  28, 68, 48, 25, 82, 38, 62, 24,
 ];
 
 function toGray(lightness) {

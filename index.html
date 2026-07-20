@@ -13,26 +13,60 @@
   <nav class="site-nav">
     <div class="site-nav__links">
       <a href="#about" data-nav="about">About</a>
-      <a href="#work" data-nav="work">Work</a>
       <a href="words.html" data-nav="words">Words</a>
+      <a href="#work" data-nav="work">Work</a>
       <a href="#contact" data-nav="contact">Contact</a>
     </div>
   </nav>
 
   <div class="nav-search-wrap">
     <form class="nav-search" id="search-box" autocomplete="off">
-      <input type="text" id="search-input" class="nav-search__input" placeholder="들리는 단어나 음절을 입력해 보세요." />
+      <input type="text" id="search-input" class="nav-search__input" placeholder="당신의 단어를 입력해 보세요." />
       <button type="submit" class="nav-search__button">검색</button>
     </form>
     <span class="nav-search__count" id="word-count"></span>
   </div>
 
-  <section id="about">
-    <div>
-      <h1 class="identity-mark" id="identity-mark">holo words</h1>
-      <p class="identity-sub">홀로둥이의 단어</p>
-    </div>
-  </section>
+  <div class="hero-slides">
+    <section id="about">
+      <div>
+        <h1 class="identity-mark" id="identity-mark">holowords</h1>
+        <p class="identity-sub" id="identity-sub">홀로둥이의 단어</p>
+      </div>
+    </section>
+
+    <section id="intro">
+      <div class="intro__content" id="intro-content">
+        <p class="intro__mark">h&nbsp;o&nbsp;l&nbsp;o&nbsp;&nbsp;w&nbsp;o&nbsp;r&nbsp;d&nbsp;s</p>
+
+        <span class="intro__chip intro__chip--title">홀로둥이의 단어</span>
+
+        <div class="intro__lead">
+          <span class="intro__chip">세상에</span>
+          <span class="intro__chip">발</span>
+          <span class="intro__chip">붙이고</span>
+          <span class="intro__chip">살아가는</span>
+          <span class="intro__chip">모든</span>
+          <span class="intro__chip intro__chip--highlight">홀로둥이</span>
+          <span class="intro__chip">를</span>
+          <span class="intro__chip">응원합니다.</span>
+        </div>
+
+        <div class="intro__body">
+          <div class="intro__body-lines">
+            <p class="intro__chip intro__chip--line">안녕하세요. 홀로둥이의 단어에 오신 걸 환영합니다.</p>
+            <p class="intro__chip intro__chip--line">이곳은 개인적으로 수집한 단어들을 모아둔 공간입니다.</p>
+          </div>
+          <div class="intro__note">
+            <p class="intro__note-title">holo words</p>
+            <p>'홀로 월드'란 홀로둥이들의 단어,<br />그리고 저마다의 세상을 존중한다는 의미입니다.</p>
+          </div>
+        </div>
+
+        <p class="intro__chip intro__chip--question">당신을 지탱해주는 단어는 무엇인가요?</p>
+      </div>
+    </section>
+  </div>
 
   <section id="work">
     <div class="work-grid" id="work-grid"></div>
@@ -45,20 +79,51 @@
 
   <script>
     (() => {
-      const el = document.getElementById("identity-mark");
-      const chars = Array.from(el.textContent);
-      el.textContent = "";
-      el.classList.add("typing");
+      /* Each intro fragment fades/slides in on its own the moment it scrolls
+         into view, in source order, instead of the whole block at once. */
+      const revealEls = document.querySelectorAll(
+        "#intro .intro__mark, #intro .intro__chip, #intro .intro__note"
+      );
+      const revealObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add("in-view");
+            revealObserver.unobserve(entry.target);
+          });
+        },
+        { threshold: 0.2 }
+      );
+      revealEls.forEach((el) => revealObserver.observe(el));
+    })();
+  </script>
+  <script>
+    (() => {
+      function typeText(el, text, speed, onDone) {
+        const chars = Array.from(text);
+        el.textContent = "";
+        el.classList.add("typing");
 
-      let i = 0;
-      const timer = setInterval(() => {
-        el.textContent += chars[i];
-        i++;
-        if (i >= chars.length) {
-          clearInterval(timer);
-          el.classList.remove("typing");
-        }
-      }, 220);
+        let i = 0;
+        const timer = setInterval(() => {
+          el.textContent += chars[i];
+          i++;
+          if (i >= chars.length) {
+            clearInterval(timer);
+            el.classList.remove("typing");
+            if (onDone) onDone();
+          }
+        }, speed);
+      }
+
+      const mark = document.getElementById("identity-mark");
+      const sub = document.getElementById("identity-sub");
+      const subText = sub.textContent;
+      sub.textContent = "";
+
+      typeText(mark, mark.textContent, 220, () => {
+        typeText(sub, subText, 120);
+      });
     })();
   </script>
   <script src="js/work-data.js"></script>
@@ -91,8 +156,6 @@
         const card = document.createElement("a");
         card.className = "work-card";
         card.href = `work.html?id=${item.id}`;
-        card.target = "_blank";
-        card.rel = "noopener noreferrer";
         card.style.backgroundColor = item.bg;
         card.style.color = item.color;
 

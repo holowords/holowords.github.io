@@ -1,12 +1,24 @@
-/* Renders the word list (two views: flowing "전체" and indexed "목록") and drives
-   the slide-in detail panel. Word items come live from a Google Drive folder
+/* Renders the word list (ㄱ~ㅎ index on the left, grouped list on the right) and
+   drives the slide-in detail panel. Word items come live from a Google Drive folder
    (js/drive-config.js) — each image's filename (minus extension) is a word title. */
 document.addEventListener("DOMContentLoaded", async () => {
-  const tabs = document.getElementById("words-tabs");
-  const flowView = document.getElementById("words-view-flow");
   const indexView = document.getElementById("words-view-index");
   const indexNav = document.getElementById("words-index");
   const indexContent = document.getElementById("words-index-content");
+
+  const tabs = document.getElementById("words-tabs");
+  const tabViews = {
+    all: document.getElementById("words-tab-all"),
+    search: document.getElementById("words-tab-search"),
+  };
+  tabs.querySelectorAll(".words-tab").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      tabs.querySelectorAll(".words-tab").forEach((b) => b.classList.toggle("active", b === btn));
+      Object.entries(tabViews).forEach(([key, view]) => {
+        view.hidden = key !== btn.dataset.tab;
+      });
+    });
+  });
 
   const overlay = document.getElementById("word-panel-overlay");
   const panel = document.getElementById("word-panel");
@@ -19,7 +31,52 @@ document.addEventListener("DOMContentLoaded", async () => {
   const searchInput = document.getElementById("search-input");
   const wordCount = document.getElementById("word-count");
 
-  flowView.textContent = "불러오는 중...";
+  const keywordCloud = document.getElementById("keyword-cloud");
+  const keywordResults = document.getElementById("keyword-results");
+  const keywordIndexNav = document.getElementById("keyword-index");
+  let activeConsonant = null;
+
+  /* "키워드로 찾기" tab: the word list itself has no real tag/category data
+     (each word is just a Drive filename), so these are illustrative keywords
+     covering themes that plausibly show up across the list. Keywords are
+     multi-select — each additional one selected narrows the result set
+     further (a word must match every active keyword to stay in the list). */
+  const DUMMY_KEYWORDS = ["감정", "행동", "사물", "자연", "사람", "빛", "어둠", "소리", "색채", "시간", "기억"];
+  const TAG_PALETTE = [
+    { bg: "#fbe4e4", color: "#1a1a1a" },
+    { bg: "#e4ecfb", color: "#1a1a1a" },
+    { bg: "#e4fbe9", color: "#1a1a1a" },
+    { bg: "#fbf3e4", color: "#1a1a1a" },
+    { bg: "#efe4fb", color: "#1a1a1a" },
+    { bg: "#fbe4f6", color: "#1a1a1a" },
+    { bg: "#e4fbf7", color: "#1a1a1a" },
+    { bg: "#fff6d6", color: "#1a1a1a" },
+    { bg: "#dcefe0", color: "#1a1a1a" },
+  ];
+  const activeKeywords = new Set();
+
+  /* Score of a single title against a single term: an exact substring match
+     wins outright, otherwise more shared characters ranks higher. */
+  function scoreTitle(title, term) {
+    const q = term.toLowerCase();
+    const qChars = Array.from(new Set(Array.from(q)));
+    const overlap = qChars.filter((ch) => title.includes(ch)).length;
+    const exactBonus = title.includes(q) ? qChars.length + 1 : 0;
+    return overlap + exactBonus;
+  }
+
+  /* Ranks `list` by how much each title overlaps `term` (see scoreTitle),
+     so a title sharing two characters with the term outranks one sharing
+     only one, independent of which consonant either starts with. */
+  function scoreMatches(term, list) {
+    return list
+      .map((word) => ({ word, score: scoreTitle(word.title.toLowerCase(), term) }))
+      .filter((entry) => entry.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .map((entry) => entry.word);
+  }
+
+  indexContent.textContent = "불러오는 중...";
 
   const query = (new URLSearchParams(location.search).get("q") || "").trim();
   if (query) searchInput.value = query;
@@ -35,27 +92,130 @@ document.addEventListener("DOMContentLoaded", async () => {
     words = await fetchDriveWords();
     wordCount.textContent = `총 ${words.length}개`;
   } catch (err) {
-    flowView.textContent = "구글 드라이브에서 단어를 불러오지 못했습니다.";
+    indexContent.textContent = "구글 드라이브에서 단어를 불러오지 못했습니다.";
     console.error(err);
     return;
   }
 
+  indexContent.textContent = "";
+  const allWords = words;
+  renderKeywordCloud();
+  renderKeywordIndex();
+  runKeywordSearch();
+
   if (query) {
-    const q = query.toLowerCase();
-    words = words.filter((w) => w.title.toLowerCase().includes(q));
+    /* Search results aren't grouped by ㄱ~ㅎ — they're one flat list, ranked
+       by character overlap with the query (see scoreMatches). */
+    words = scoreMatches(query, words);
+    indexNav.hidden = true;
+
+    if (!words.length) {
+      indexContent.textContent = "일치하는 단어가 없습니다.";
+    } else {
+      indexContent.appendChild(buildWordList(words));
+    }
     renderSearchBanner(query, words.length);
-  }
-
-  const grouped = groupWordsByConsonant(words);
-
-  flowView.textContent = "";
-  if (query && !words.length) {
-    flowView.textContent = "일치하는 단어가 없습니다.";
   } else {
-    renderFlowView(grouped);
-    renderIndexView(grouped);
+    const summary = document.createElement("p");
+    summary.className = "words-search-banner";
+    summary.textContent = `전체 단어 ${words.length}개`;
+    indexView.parentNode.insertBefore(summary, indexView);
+    renderIndexView(groupWordsByConsonant(words));
   }
-  setupTabs();
+
+  function renderKeywordCloud() {
+    DUMMY_KEYWORDS.forEach((keyword, i) => {
+      const palette = TAG_PALETTE[i % TAG_PALETTE.length];
+      const chip = document.createElement("button");
+      chip.className = "keyword-chip";
+      chip.type = "button";
+      chip.textContent = keyword;
+      chip.style.background = palette.bg;
+      chip.style.color = palette.color;
+      chip.addEventListener("click", () => {
+        if (activeKeywords.has(keyword)) {
+          activeKeywords.delete(keyword);
+          chip.classList.remove("active");
+        } else {
+          activeKeywords.add(keyword);
+          chip.classList.add("active");
+        }
+        runKeywordSearch();
+      });
+      keywordCloud.appendChild(chip);
+    });
+  }
+
+  /* Same ㄱ~ㅎ index as the "전체단어" tab, but here it's a single-select
+     filter (click again to clear) that narrows keyword results by initial
+     consonant instead of scrolling to a section. */
+  function renderKeywordIndex() {
+    const grouped = groupWordsByConsonant(allWords);
+    const available = CONSONANT_ORDER.filter((c) => grouped[c] && grouped[c].length);
+
+    available.forEach((consonant) => {
+      const link = document.createElement("button");
+      link.className = "words-index__link";
+      link.type = "button";
+      link.textContent = consonant;
+      link.addEventListener("click", () => {
+        activeConsonant = activeConsonant === consonant ? null : consonant;
+        keywordIndexNav.querySelectorAll(".words-index__link").forEach((el) => {
+          el.classList.toggle("active", el.textContent === activeConsonant);
+        });
+        runKeywordSearch();
+      });
+      keywordIndexNav.appendChild(link);
+    });
+  }
+
+  /* A word must score above 0 against every active keyword, and match the
+     active consonant filter if one is set, to survive — each extra filter
+     can only shrink the result set, never grow it. With nothing selected
+     yet, show every word in the same grid so the tab isn't empty. */
+  function runKeywordSearch() {
+    keywordResults.innerHTML = "";
+    const keywords = Array.from(activeKeywords);
+    const byConsonant = activeConsonant
+      ? allWords.filter((w) => getInitialConsonant(w.title) === activeConsonant)
+      : allWords;
+
+    if (!keywords.length) {
+      const summary = document.createElement("p");
+      summary.className = "words-search-banner";
+      summary.textContent = activeConsonant
+        ? `"${activeConsonant}" 단어 ${byConsonant.length}개`
+        : `전체 단어 ${byConsonant.length}개`;
+      keywordResults.appendChild(summary);
+      keywordResults.appendChild(buildWordGrid(byConsonant));
+      return;
+    }
+
+    const scored = byConsonant
+      .map((word) => {
+        const title = word.title.toLowerCase();
+        const scores = keywords.map((kw) => scoreTitle(title, kw));
+        return scores.every((s) => s > 0) ? { word, score: scores.reduce((a, b) => a + b, 0) } : null;
+      })
+      .filter(Boolean)
+      .sort((a, b) => b.score - a.score)
+      .map((entry) => entry.word);
+
+    const label = activeConsonant ? `${keywords.join(" + ")} · ${activeConsonant}` : keywords.join(" + ");
+    const summary = document.createElement("p");
+    summary.className = "words-search-banner";
+    summary.textContent = `"${label}" 결과 ${scored.length}개`;
+    keywordResults.appendChild(summary);
+
+    if (!scored.length) {
+      const empty = document.createElement("p");
+      empty.className = "words-placeholder";
+      empty.textContent = "일치하는 단어가 없습니다.";
+      keywordResults.appendChild(empty);
+      return;
+    }
+    keywordResults.appendChild(buildWordGrid(scored));
+  }
 
   function renderSearchBanner(query, count) {
     const banner = document.createElement("div");
@@ -71,7 +231,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     clear.textContent = "전체 보기";
     banner.appendChild(clear);
 
-    tabs.parentNode.insertBefore(banner, tabs);
+    indexView.parentNode.insertBefore(banner, indexView);
   }
 
   function buildWordList(items) {
@@ -102,22 +262,39 @@ document.addEventListener("DOMContentLoaded", async () => {
     return list;
   }
 
-  function renderFlowView(grouped) {
-    CONSONANT_ORDER.forEach((consonant) => {
-      const items = grouped[consonant];
-      if (!items || !items.length) return;
+  /* Card grid (4 per row) showing each word's actual Drive image as a
+     thumbnail — used for keyword results, where seeing the image up front
+     matters more than scanning a plain title list. */
+  function buildWordGrid(items) {
+    const grid = document.createElement("div");
+    grid.className = "words-grid";
 
-      const group = document.createElement("section");
-      group.className = "words-group";
+    items.forEach((word) => {
+      const card = document.createElement("button");
+      card.className = "words-grid__card";
+      card.type = "button";
 
-      const header = document.createElement("h2");
-      header.className = "words-group__header";
-      header.textContent = consonant;
-      group.appendChild(header);
-      group.appendChild(buildWordList(items));
+      const imageWrap = document.createElement("span");
+      imageWrap.className = "words-grid__image-wrap";
 
-      flowView.appendChild(group);
+      const img = document.createElement("img");
+      img.className = "words-grid__image";
+      img.src = word.image;
+      img.alt = word.title;
+      img.loading = "lazy";
+      imageWrap.appendChild(img);
+
+      const caption = document.createElement("span");
+      caption.className = "words-grid__caption";
+      caption.textContent = word.title;
+
+      card.appendChild(imageWrap);
+      card.appendChild(caption);
+      card.addEventListener("click", () => openPanel(word));
+      grid.appendChild(card);
     });
+
+    return grid;
   }
 
   function renderIndexView(grouped) {
@@ -149,7 +326,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const indexLinks = indexNav.querySelectorAll(".words-index__link");
     const setActiveLink = (consonant) => {
-      indexLinks.forEach((el) => el.classList.toggle("active", el.textContent === consonant));
+      const activeIndex = available.indexOf(consonant);
+      indexLinks.forEach((el, i) => {
+        el.classList.toggle("active", el.textContent === consonant);
+        /* Consonants scrolled past collapse up and out of the list, so the
+           active one settles near the top instead of the list just growing. */
+        el.classList.toggle("words-index__link--collapsed", activeIndex > -1 && i < activeIndex);
+      });
     };
     if (available.length) setActiveLink(available[0]);
 
@@ -162,18 +345,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       { rootMargin: "-20% 0px -70% 0px" }
     );
     indexContent.querySelectorAll(".words-group").forEach((el) => observer.observe(el));
-  }
-
-  function setupTabs() {
-    const tabButtons = tabs.querySelectorAll(".words-tab");
-    tabButtons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        tabButtons.forEach((b) => b.classList.toggle("active", b === btn));
-        const showIndex = btn.dataset.view === "index";
-        flowView.hidden = showIndex;
-        indexView.hidden = !showIndex;
-      });
-    });
   }
 
   let typingTimer = null;
