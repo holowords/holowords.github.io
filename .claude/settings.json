@@ -8,7 +8,24 @@
       "Bash(python3 -c \"import websockets\")",
       "Bash(python3 -c \"import websocket\")",
       "Bash(pip3 list *)",
-      "Bash(python3 -c ' *)"
+      "Bash(python3 -c ' *)",
+      "Bash(mkdir -p /private/tmp/claude-501/-Users-hj-Desktop----------/4d519147-a3d5-4751-83c4-81f55e9df3ea/scratchpad/pdfpreview)",
+      "Bash(sips -g pixelWidth -g pixelHeight /private/tmp/claude-501/-Users-hj-Desktop----------/4d519147-a3d5-4751-83c4-81f55e9df3ea/scratchpad/pdfpreview/p1.png)",
+      "Bash(mkdir -p pages)",
+      "Bash(cp \"책 표지.png\" cover-closed.png)",
+      "WebFetch(domain:tympanus.net)",
+      "Bash(timeout 40 '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --no-sandbox --window-size=1440,900 --virtual-time-budget=3000 --screenshot=/private/tmp/claude-501/-Users-hj-Desktop----------/4d519147-a3d5-4751-83c4-81f55e9df3ea/scratchpad/shots/book-launch.png http://localhost:8950/book.html)",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --no-sandbox --window-size=1440,900 --virtual-time-budget=3000 --screenshot=/private/tmp/claude-501/-Users-hj-Desktop----------/4d519147-a3d5-4751-83c4-81f55e9df3ea/scratchpad/shots/book-launch.png http://localhost:8950/book.html)",
+      "Bash(cp book.html /tmp/book.html.bak)",
+      "Bash(python3 -)",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --no-sandbox --window-size=1440,900 --virtual-time-budget=1200 --screenshot=/private/tmp/claude-501/-Users-hj-Desktop----------/4d519147-a3d5-4751-83c4-81f55e9df3ea/scratchpad/shots/book-mid-flip.png http://localhost:8950/book.html)",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --no-sandbox --window-size=1440,900 --virtual-time-budget=3000 --screenshot=/private/tmp/claude-501/-Users-hj-Desktop----------/4d519147-a3d5-4751-83c4-81f55e9df3ea/scratchpad/shots/book-page1.png http://localhost:8950/book.html)",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --no-sandbox --window-size=1440,900 --virtual-time-budget=2000 --screenshot=/private/tmp/claude-501/-Users-hj-Desktop----------/4d519147-a3d5-4751-83c4-81f55e9df3ea/scratchpad/shots/book-opened.png http://localhost:8950/book.html)",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --no-sandbox --window-size=400,600 --virtual-time-budget=1500 --screenshot=/private/tmp/claude-501/-Users-hj-Desktop----------/4d519147-a3d5-4751-83c4-81f55e9df3ea/scratchpad/shots/raw-cover-front.png http://localhost:8950/image/Book/cover-front.jpg)",
+      "Bash(curl -s \"http://localhost:8950/css/style.css\")",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --no-sandbox --window-size=1440,900 --virtual-time-budget=2000 --screenshot=/private/tmp/claude-501/-Users-hj-Desktop----------/4d519147-a3d5-4751-83c4-81f55e9df3ea/scratchpad/shots/book-opened-retest.png http://localhost:8950/book.html)",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --no-sandbox --window-size=1440,900 --virtual-time-budget=2000 --screenshot=/private/tmp/claude-501/-Users-hj-Desktop----------/4d519147-a3d5-4751-83c4-81f55e9df3ea/scratchpad/shots/book-debug.png http://localhost:8950/book-debug.html)",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --no-sandbox --window-size=1440,900 --virtual-time-budget=8000 --screenshot=/private/tmp/claude-501/-Users-hj-Desktop----------/4d519147-a3d5-4751-83c4-81f55e9df3ea/scratchpad/shots/book-opened-longbudget.png http://localhost:8950/book.html)"
     ]
   }
 }

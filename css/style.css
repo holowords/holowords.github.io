@@ -912,7 +912,7 @@ a {
   /* Fixed, explicit sizing (not "auto") so this bar's real height always
      matches --mobile-topbar-height below — otherwise it can grow taller
      than the reserved space and overlap the page content under it. */
-  body:not([data-page="work-detail"]) {
+  body:not([data-page="work-detail"]):not([data-page="book"]) {
     --mobile-topbar-height: 76px;
     --header-offset: calc(var(--nav-height) + var(--mobile-topbar-height));
     padding-top: var(--header-offset);
@@ -958,5 +958,237 @@ a {
      a small sliver of the list visible on the left instead of sitting at 50%. */
   .word-panel {
     width: calc(100% - 32px);
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Book tab — closed-cover launch + 3D page-flip viewer                   */
+/* ---------------------------------------------------------------------- */
+
+body[data-page="book"] {
+  background: #15130f;
+}
+
+.book-page {
+  min-height: calc(100vh - var(--header-offset));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  padding: 48px 24px 72px;
+}
+
+.book-cover-launch[hidden] {
+  display: none;
+}
+
+.book-cover-launch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.book-cover-launch img {
+  width: min(320px, 70vw);
+  filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.5));
+  transition: transform 0.3s ease;
+}
+
+.book-cover-launch:hover img {
+  transform: translateY(-6px);
+}
+
+.book-cover-launch__label {
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 15px;
+  color: #f5efe0;
+  opacity: 0.75;
+  letter-spacing: 0.03em;
+}
+
+.book-viewer {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+}
+
+.book-viewer.active {
+  display: flex;
+}
+
+.book-stage {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 800px;
+}
+
+.book-nav {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(245, 239, 224, 0.3);
+  background: rgba(245, 239, 224, 0.06);
+  color: #f5efe0;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s ease, opacity 0.2s ease;
+}
+
+.book-nav:hover:not(:disabled) {
+  background: rgba(245, 239, 224, 0.16);
+}
+
+.book-nav:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.book-frame {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.45));
+}
+
+/* StPageFlip sizes and positions its own canvas inside this element. */
+#book-flip {
+  margin: 0 auto;
+}
+
+/* On the front/back cover, StPageFlip renders the cover on one half of the
+   spread and leaves the other half blank (white) — a real book's cover
+   before any page has turned. These panels sit over that blank half so
+   only the cover itself reads, rather than a cover paired with empty page. */
+.book-frame__mask {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  background: #15130f;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.book-frame__mask--left {
+  left: 0;
+}
+
+.book-frame__mask--right {
+  right: 0;
+}
+
+.book-frame--cover-front .book-frame__mask--left {
+  opacity: 1;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.book-frame--cover-back .book-frame__mask--right {
+  opacity: 1;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.book-footer {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.book-progress {
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 13px;
+  color: #f5efe0;
+  opacity: 0.6;
+  letter-spacing: 0.05em;
+  background: none;
+  border: none;
+  border-bottom: 1px dashed currentColor;
+  padding: 0 0 1px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.book-progress:hover {
+  opacity: 0.9;
+}
+
+.book-progress-form {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 13px;
+  color: #f5efe0;
+}
+
+.book-progress-form[hidden] {
+  display: none;
+}
+
+.book-progress-form__input,
+#book-progress-input {
+  width: 44px;
+  background: rgba(245, 239, 224, 0.08);
+  border: 1px solid rgba(245, 239, 224, 0.3);
+  border-radius: 4px;
+  color: #f5efe0;
+  font: inherit;
+  padding: 2px 6px;
+  text-align: right;
+}
+
+#book-progress-input:focus {
+  outline: none;
+  border-color: rgba(245, 239, 224, 0.6);
+}
+
+.book-reset {
+  background: none;
+  border: none;
+  font: inherit;
+  font-size: 13px;
+  color: #f5efe0;
+  opacity: 0.5;
+  border-bottom: 1px solid currentColor;
+  padding: 0 0 1px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.book-reset:hover {
+  opacity: 0.85;
+}
+
+@media (max-width: 640px) {
+  .book-stage {
+    gap: 6px;
+  }
+
+  .book-nav {
+    width: 34px;
+    height: 34px;
+    font-size: 16px;
+  }
+
+  .book-frame {
+    max-height: 56vh;
   }
 }

@@ -3,9 +3,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const navLinks = document.querySelectorAll(".site-nav a");
   const page = document.body.dataset.page;
 
-  if (page === "words") {
+  if (page === "words" || page === "book") {
     navLinks.forEach((link) => {
-      if (link.dataset.nav === "words") link.classList.add("active");
+      if (link.dataset.nav === page) link.classList.add("active");
     });
     return;
   }

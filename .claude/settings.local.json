@@ -61,7 +61,10 @@
       "Bash(python3 -m http.server 8122)",
       "Bash(curl -sf http://localhost:8122/css/style.css)",
       "Bash(curl -s -o /dev/null -w \"css/style.css: %{http_code}\\\\n\" http://localhost:8122/css/style.css)",
-      "Bash(lsof -ti:8122 -sTCP:LISTEN)"
+      "Bash(lsof -ti:8122 -sTCP:LISTEN)",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --no-sandbox --run-all-compositor-stages-before-draw --window-size=1440,900 --virtual-time-budget=2000 --screenshot=/private/tmp/claude-501/-Users-hj-Desktop----------/4d519147-a3d5-4751-83c4-81f55e9df3ea/scratchpad/shots/book-opened-compositor.png http://localhost:8950/book.html)",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --no-sandbox --window-size=1440,900 --virtual-time-budget=2500 --screenshot=/private/tmp/claude-501/-Users-hj-Desktop----------/4d519147-a3d5-4751-83c4-81f55e9df3ea/scratchpad/shots/book-clean-open.png http://localhost:8950/book.html)",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --no-sandbox --window-size=1440,900 --virtual-time-budget=2500 --screenshot=/private/tmp/claude-501/-Users-hj-Desktop----------/4d519147-a3d5-4751-83c4-81f55e9df3ea/scratchpad/shots/book-gpu.png http://localhost:8950/book.html)"
     ]
   }
 }
