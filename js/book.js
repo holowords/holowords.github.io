@@ -21,9 +21,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* In two-page (landscape) mode, StPageFlip renders the front/back cover
      alone on one half of the spread and leaves the other half blank —
-     mask that blank half (see .book-frame__mask in style.css) so only the
-     cover itself shows. Portrait mode already shows single pages alone, so
-     this only applies in landscape. */
+     clip that blank half out of the frame (see .book-frame__clip in
+     style.css) so only the cover itself shows. Portrait mode already shows
+     single pages alone, so this only applies in landscape. */
   function updateCoverMask() {
     const isLandscape = pageFlip.getOrientation() === "landscape";
     const collection = pageFlip.getPageCollection();
@@ -130,29 +130,12 @@ document.addEventListener("DOMContentLoaded", () => {
     pageFlip.turnToPage(0);
   }
 
-  /* pageFlip.flipNext()/flipPrev() simulate a corner click from computed
-     coordinates, which turned out unreliable here — turnToPage() (direct
-     index navigation) is what actually moves the book, so the buttons and
-     keyboard use that. Dragging a page corner still goes through the
-     library's own native pointer handling for the animated turn.
-
-     turnToPage() jumps to whichever *spread* contains the given page and
-     reports that spread's first page — asking for "current + 1" is a no-op
-     once current is the left page of a two-page spread, since page+1 is
-     the right half of that same spread. Stepping by spread index instead
-     always lands on a different spread. */
-  function step(direction) {
-    if (!pageFlip) return;
-    const collection = pageFlip.getPageCollection();
-    const spreads = collection.getSpread();
-    const targetSpread = collection.getCurrentSpreadIndex() + direction;
-    if (targetSpread < 0 || targetSpread >= spreads.length) return;
-    pageFlip.turnToPage(spreads[targetSpread][0]);
-    updateControls();
-  }
-
-  prevBtn.addEventListener("click", () => step(-1));
-  nextBtn.addEventListener("click", () => step(1));
+  /* flipNext()/flipPrev() drive the same animated page-turn (curl + shadow)
+     that dragging a corner does, so the buttons, the cover's blank-area
+     click target, and the keyboard all trigger the real gesture instead of
+     an instant cut. */
+  prevBtn.addEventListener("click", () => pageFlip && pageFlip.flipPrev());
+  nextBtn.addEventListener("click", () => pageFlip && pageFlip.flipNext());
 
   /* The masked blank half of a cover spread (see updateCoverMask) has no
      real page underneath for StPageFlip's own click-to-flip to react to —
@@ -161,13 +144,13 @@ document.addEventListener("DOMContentLoaded", () => {
      cover's right side, and on those spreads there's only one direction
      to go — forward off the front cover, back off the last page — so
      clicking it turns the page the same way clicking the cover itself does. */
-  maskLeft.addEventListener("click", () => step(1));
-  maskRight.addEventListener("click", () => step(-1));
+  maskLeft.addEventListener("click", () => pageFlip && pageFlip.flipNext());
+  maskRight.addEventListener("click", () => pageFlip && pageFlip.flipPrev());
 
   document.addEventListener("keydown", (e) => {
     if (!viewer.classList.contains("active") || !pageFlip) return;
-    if (e.key === "ArrowLeft") step(-1);
-    if (e.key === "ArrowRight") step(1);
+    if (e.key === "ArrowLeft") pageFlip.flipPrev();
+    if (e.key === "ArrowRight") pageFlip.flipNext();
   });
 
   launch.addEventListener("click", () => {

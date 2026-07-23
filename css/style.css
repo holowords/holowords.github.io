@@ -472,7 +472,7 @@ a {
   background: none;
   border: none;
   font: inherit;
-  font-size: 15px;
+  font-size: 17px;
   padding: 10px 4px 12px;
   margin-bottom: -1px;
   cursor: pointer;
@@ -610,9 +610,23 @@ a {
 }
 
 .words-grid__caption {
+  /* .words-grid__card is a column flex container, which stretches its
+     children to the full card width by default — without this the
+     highlight's background-size:100% would span that full width instead
+     of stopping at the end of the word. */
+  align-self: flex-start;
   font-family: "Gowun Dodum", sans-serif;
-  font-size: 14px;
+  font-size: 17px;
   color: var(--ink);
+  background-image: linear-gradient(120deg, #fff176 0%, #fff176 100%);
+  background-repeat: no-repeat;
+  background-size: 0% 45%;
+  background-position: 0 88%;
+  transition: background-size 0.25s ease;
+}
+
+.words-grid__card:hover .words-grid__caption {
+  background-size: 100% 45%;
 }
 
 @media (max-width: 640px) {
@@ -632,16 +646,16 @@ a {
 .words-index {
   /* Must match .words-group's scroll-margin-top and .words-group__header's
      top exactly — otherwise the left ㄱ~ㅎ button and the right-hand header
-     it maps to end up stuck at different heights when you scroll/click. */
+     it maps to end up stuck at different heights when you scroll/click.
+     +100px = the tab bar's own ~60px height plus a 40px gap below it, so
+     that gap holds once .words-tabs and .words-index are both stuck, not
+     just while scrolled to the very top. */
   position: sticky;
-  top: calc(var(--header-offset) + 60px);
+  top: calc(var(--header-offset) + 100px);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
   width: 48px;
-  /* Breathing room above the topmost link, since consonants scrolled past
-     collapse away and the active one ends up sitting right at the top. */
-  margin-top: 20px;
 }
 
 .words-index[hidden] {
@@ -701,7 +715,7 @@ a {
   /* So clicking a ㄱ~ㅎ link scrolls the group's header exactly to the
      height it sticks at (see .words-index / .words-group__header), instead
      of landing a bit short or past it. */
-  scroll-margin-top: calc(var(--header-offset) + 60px);
+  scroll-margin-top: calc(var(--header-offset) + 100px);
 }
 
 .words-group__header {
@@ -711,7 +725,8 @@ a {
   padding-bottom: 8px;
   margin-bottom: 16px;
   position: sticky;
-  top: calc(var(--header-offset) + 60px);
+  top: calc(var(--header-offset) + 100px);
+  z-index: 5;
   background: #fff;
 }
 
@@ -1066,6 +1081,13 @@ body[data-page="book"] {
   filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.45));
 }
 
+.book-frame__clip {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  transition: clip-path 0.2s ease;
+}
+
 /* StPageFlip sizes and positions its own canvas inside this element. */
 #book-flip {
   margin: 0 auto;
@@ -1073,17 +1095,30 @@ body[data-page="book"] {
 
 /* On the front/back cover, StPageFlip renders the cover on one half of the
    spread and leaves the other half blank (white) — a real book's cover
-   before any page has turned. These panels sit over that blank half so
-   only the cover itself reads, rather than a cover paired with empty page. */
+   before any page has turned. clip-path crops that blank half out of the
+   canvas's own painted output (rather than painting a solid panel over it,
+   which read as a flat dark square against the shadow) — the drop-shadow
+   on .book-frame is computed from this element's composited pixels, so
+   clipping here still leaves it hugging just the visible cover. */
+.book-frame--cover-front .book-frame__clip {
+  clip-path: inset(0 0 0 50%);
+}
+
+.book-frame--cover-back .book-frame__clip {
+  clip-path: inset(0 50% 0 0);
+}
+
+/* Invisible click targets over the clipped-away half, siblings of the
+   clipped element (not inside it) so clip-path doesn't also swallow their
+   hit-testing. Nothing to mask visually anymore, but clicking that side of
+   the book should still turn the page the way clicking the visible cover
+   does (see book.js). */
 .book-frame__mask {
   position: absolute;
   top: 0;
   bottom: 0;
   width: 50%;
-  background: #15130f;
-  opacity: 0;
   pointer-events: none;
-  transition: opacity 0.2s ease;
 }
 
 .book-frame__mask--left {
@@ -1095,13 +1130,11 @@ body[data-page="book"] {
 }
 
 .book-frame--cover-front .book-frame__mask--left {
-  opacity: 1;
   pointer-events: auto;
   cursor: pointer;
 }
 
 .book-frame--cover-back .book-frame__mask--right {
-  opacity: 1;
   pointer-events: auto;
   cursor: pointer;
 }
