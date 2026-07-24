@@ -19,11 +19,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let pageFlip = null;
 
-  /* In two-page (landscape) mode, StPageFlip renders the front/back cover
-     alone on one half of the spread and leaves the other half blank —
-     clip that blank half out of the frame (see .book-frame__clip in
-     style.css) so only the cover itself shows. Portrait mode already shows
-     single pages alone, so this only applies in landscape. */
+  /* usePortrait is off (see below) so the book always shows two pages
+     side by side, even on narrow/mobile screens — in that landscape mode,
+     StPageFlip renders the front/back cover alone on one half of the
+     spread and leaves the other half blank. Clip that blank half out of
+     the frame (see .book-frame__clip in style.css) so only the cover
+     itself shows. */
   function updateCoverMask() {
     const isLandscape = pageFlip.getOrientation() === "landscape";
     const collection = pageFlip.getPageCollection();
@@ -107,13 +108,20 @@ document.addEventListener("DOMContentLoaded", () => {
       width: 500,
       height: 700,
       size: "stretch",
-      minWidth: 240,
+      /* minWidth/minHeight are PER PAGE, not per spread — with usePortrait
+         off, the book is always two pages side by side, so the rendered
+         spread can't shrink below 2x this value. 240 (carried over from
+         when portrait mode handled narrow screens) made the spread floor
+         out at 480px wide, wider than most phone screens and cut off at
+         the edge. 90 keeps a ~180px floor, small enough to fit down to
+         narrow phones while still readable. */
+      minWidth: 90,
       maxWidth: 680,
-      minHeight: 336,
+      minHeight: 126,
       maxHeight: 952,
       maxShadowOpacity: 0.5,
       showCover: true,
-      usePortrait: true,
+      usePortrait: false,
       mobileScrollSupport: false,
       flippingTime: 700,
     });
@@ -124,10 +132,27 @@ document.addEventListener("DOMContentLoaded", () => {
     let resizeTimer;
     window.addEventListener("resize", () => {
       clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(() => pageFlip.turnToPage(pageFlip.getCurrentPageIndex()), 150);
+      resizeTimer = setTimeout(() => {
+        pageFlip.update();
+        sharpenCanvas();
+        pageFlip.turnToPage(pageFlip.getCurrentPageIndex());
+      }, 150);
     });
     updateControls();
     pageFlip.turnToPage(0);
+
+    /* StPageFlip measures its container once at construction — if that
+       happens before the surrounding flex layout has settled (it does
+       here, since .book-viewer is still display:none the instant this
+       runs), the size it picks up is wrong and never gets reconsidered on
+       its own. Forcing one more measurement pass on the next frame, once
+       the real layout is in place, fixes the size without a visible
+       flash. */
+    requestAnimationFrame(() => {
+      pageFlip.update();
+      sharpenCanvas();
+      pageFlip.turnToPage(pageFlip.getCurrentPageIndex());
+    });
   }
 
   /* flipNext()/flipPrev() drive the same animated page-turn (curl + shadow)

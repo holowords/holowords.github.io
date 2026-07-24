@@ -1073,6 +1073,12 @@ body[data-page="book"] {
 .book-frame {
   position: relative;
   flex: 1;
+  /* Flex items default to min-width:auto, which refuses to shrink below
+     the content's intrinsic size — since StPageFlip's "stretch" mode reads
+     that intrinsic size to decide how big to render, the two feed back on
+     each other and the book never shrinks to fit narrow screens, overflowing
+     past the edge instead. min-width:0 removes that floor. */
+  min-width: 0;
   width: 100%;
   max-width: 680px;
   margin: 0 auto;
@@ -1083,6 +1089,7 @@ body[data-page="book"] {
 
 .book-frame__clip {
   width: 100%;
+  min-width: 0;
   display: flex;
   justify-content: center;
   transition: clip-path 0.2s ease;
