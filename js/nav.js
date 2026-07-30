@@ -10,27 +10,37 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  // Home page: highlight based on which section is in view.
-  const sections = ["about", "work", "contact"]
-    .map((id) => document.getElementById(id))
-    .filter(Boolean);
+  /* Home page: About / Work / Contact are tabs, not scroll-stacked
+     sections — only one is ever visible, switched by clicking nav links
+     (or landing on a #hash), never by scrolling past one into the next. */
+  const panelIds = ["about", "work", "contact"];
+  const panels = panelIds.map((id) => document.getElementById(id)).filter(Boolean);
 
-  if (!sections.length) return;
+  if (!panels.length) return;
 
-  const setActive = (id) => {
+  function showPanel(id) {
+    panels.forEach((panel) => panel.classList.toggle("active", panel.id === id));
     navLinks.forEach((link) => {
       link.classList.toggle("active", link.dataset.nav === id);
     });
-  };
+  }
 
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) setActive(entry.target.id);
-      });
-    },
-    { rootMargin: "-50% 0px -49% 0px" }
-  );
+  function panelFromHash() {
+    const id = location.hash.slice(1);
+    return panelIds.includes(id) ? id : "about";
+  }
 
-  sections.forEach((section) => observer.observe(section));
+  showPanel(panelFromHash());
+
+  navLinks.forEach((link) => {
+    const id = link.dataset.nav;
+    if (!panelIds.includes(id)) return; // Words/Book links navigate to another page as-is.
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (location.hash !== `#${id}`) history.pushState(null, "", `#${id}`);
+      showPanel(id);
+    });
+  });
+
+  window.addEventListener("popstate", () => showPanel(panelFromHash()));
 });

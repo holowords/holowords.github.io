@@ -14,10 +14,45 @@ document.addEventListener("DOMContentLoaded", () => {
   const progressForm = document.getElementById("book-progress-form");
   const progressInput = document.getElementById("book-progress-input");
   const progressTotal = document.getElementById("book-progress-total");
+  const indexNav = document.getElementById("book-index");
 
   if (!launch || !viewer || !flipEl) return;
 
   let pageFlip = null;
+
+  /* Quick-jump index above the book, entries 1–80: a button per entry
+     number, 16 per row over 5 rows. Each jumps to that entry's actual page
+     via BOOK_ENTRY_PAGES (see book-data.js) — entry number and BOOK_PAGES
+     index diverge because a page can hold any collaborator's (R/S/J)
+     drawing of that same entry, not one page per number. Built once up
+     front since it doesn't depend on pageFlip existing yet — turnToPage()
+     is only called on click. */
+  const INDEX_COUNT = 80;
+  const indexButtons = [];
+  for (let n = 1; n <= INDEX_COUNT; n++) {
+    const target = BOOK_ENTRY_PAGES[n];
+    if (target === undefined) continue;
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "book-index__link";
+    btn.textContent = n;
+    btn.addEventListener("click", () => {
+      if (!pageFlip) return;
+      pageFlip.turnToPage(target);
+      // Left focused, this and :focus-styled circles were rendering with a
+      // stray gray fill that no CSS property (background, outline,
+      // appearance...) traced back to — dropping focus once the click is
+      // handled sidesteps it entirely; .active already carries the "this
+      // is the current page" indicator, so focus isn't needed for that.
+      btn.blur();
+    });
+    indexNav.appendChild(btn);
+    indexButtons.push({ btn, page: target });
+  }
+
+  function updateIndexActive(current) {
+    indexButtons.forEach(({ btn, page }) => btn.classList.toggle("active", page === current));
+  }
 
   /* usePortrait is off (see below) so the book always shows two pages
      side by side, even on narrow/mobile screens — in that landscape mode,
@@ -46,6 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
     progressTotal.textContent = `/ ${total}`;
     progressInput.max = total;
     updateCoverMask();
+    updateIndexActive(current);
   }
 
   /* Clicking the "N / total" label swaps it for a number input so you can

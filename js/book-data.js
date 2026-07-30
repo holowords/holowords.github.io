@@ -9,3 +9,22 @@ const BOOK_PAGES = [
   ...Array.from({ length: 270 }, (_, i) => `image/Book/pages-single/${String(i + 1).padStart(4, "0")}.jpg`),
   "image/Book/cover-back.jpg",
 ];
+
+/* Maps each "오늘의 단어" entry number to its plain gray intro page in
+   BOOK_PAGES (number + title only, e.g. "13 하늘") — NOT just "the first
+   page with that number", since every entry is actually 4 pages: that
+   gray intro page, then one drawing page per collaborator (title suffixed
+   "-R"/"-S"/"-J"). The intro page always comes first and sits noticeably
+   lower on the sheet than the drawing pages' number, so picking each
+   entry's first-in-file-order digit match (extracted from the PDF's text
+   layer, not OCR) lands on it correctly. Covers entries 1–80. */
+const BOOK_ENTRY_PAGES = {
+  1: 5, 2: 9, 3: 13, 4: 17, 5: 21, 6: 25, 7: 29, 8: 33, 9: 37, 10: 41,
+  11: 45, 12: 49, 13: 53, 14: 57, 15: 61, 16: 64, 17: 68, 18: 72, 19: 75, 20: 79,
+  21: 83, 22: 86, 23: 90, 24: 94, 25: 97, 26: 101, 27: 104, 28: 108, 29: 111, 30: 114,
+  31: 117, 32: 121, 33: 124, 34: 128, 35: 132, 36: 136, 37: 140, 38: 144, 39: 148, 40: 151,
+  41: 155, 42: 157, 43: 160, 44: 164, 45: 168, 46: 172, 47: 175, 48: 179, 49: 183, 50: 186,
+  51: 189, 52: 192, 53: 196, 54: 199, 55: 202, 56: 206, 57: 208, 58: 211, 59: 214, 60: 216,
+  61: 218, 62: 220, 63: 222, 64: 225, 65: 227, 66: 229, 67: 232, 68: 235, 69: 239, 70: 243,
+  71: 245, 72: 247, 73: 249, 74: 251, 75: 253, 76: 255, 77: 257, 78: 259, 79: 262, 80: 266,
+};
