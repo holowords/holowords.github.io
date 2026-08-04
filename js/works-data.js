@@ -3,7 +3,13 @@
    itself), displayed as-is pinned to the wall. This is a static site with
    no server-side directory listing, so this filename list has to be kept
    in sync by hand: whenever a new image is dropped into image/works/, add
-   its filename here too. */
+   its filename here too.
+
+   That's the only manual step — everything past this array is automatic
+   per entry (see index.html): the note's display, its tilt, the lightbox,
+   and the "책에서 보기" link to that same word's panel on the Words page
+   all derive straight from the filename ("메모지_[제목].ext" → 제목), so a
+   new file just needs a matching word to already exist on the Words page. */
 const WORKS_ITEMS = [
   "메모지_날개.jpg",
   "메모지_그런거.jpg",

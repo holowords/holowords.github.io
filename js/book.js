@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const progressInput = document.getElementById("book-progress-input");
   const progressTotal = document.getElementById("book-progress-total");
   const indexNav = document.getElementById("book-index");
+  const indexMoreBtn = document.getElementById("book-index-more");
 
   if (!launch || !viewer || !flipEl) return;
 
@@ -50,16 +51,25 @@ document.addEventListener("DOMContentLoaded", () => {
     indexButtons.push({ btn, page: target });
   }
 
+  /* Mobile-only: the index starts clipped to 4 rows (see .book-index in
+     style.css); this chevron toggles the rest open and shut — a no-op on
+     desktop, where the index is never clipped in the first place. */
+  indexMoreBtn.addEventListener("click", () => {
+    const expanded = indexNav.classList.toggle("expanded");
+    indexMoreBtn.classList.toggle("expanded", expanded);
+  });
+
   function updateIndexActive(current) {
     indexButtons.forEach(({ btn, page }) => btn.classList.toggle("active", page === current));
   }
 
-  /* usePortrait is off (see below) so the book always shows two pages
-     side by side, even on narrow/mobile screens — in that landscape mode,
+  /* Only matters in landscape (desktop/tablet, two-page spread) — there,
      StPageFlip renders the front/back cover alone on one half of the
      spread and leaves the other half blank. Clip that blank half out of
      the frame (see .book-frame__clip in style.css) so only the cover
-     itself shows. */
+     itself shows. In portrait (mobile, one page at a time — see
+     usePortrait below) the cover is already a full "spread" on its own,
+     so no masking is needed there. */
   function updateCoverMask() {
     const isLandscape = pageFlip.getOrientation() === "landscape";
     const collection = pageFlip.getPageCollection();
@@ -141,23 +151,29 @@ document.addEventListener("DOMContentLoaded", () => {
   function initFlipbook() {
     if (pageFlip) return;
     pageFlip = new St.PageFlip(flipEl, {
-      width: 500,
-      height: 700,
+      /* Matches the actual exported page images (pages-single/*.jpg are
+         ~612x919, not the old 500x700) — StPageFlip fits each page to this
+         aspect ratio inside its per-page box, so a mismatch here left a
+         blank sliver down one side of every single page once portrait mode
+         (see usePortrait below) started rendering pages at real size
+         instead of squeezed two to a spread. */
+      width: 612,
+      height: 919,
       size: "stretch",
-      /* minWidth/minHeight are PER PAGE, not per spread — with usePortrait
-         off, the book is always two pages side by side, so the rendered
-         spread can't shrink below 2x this value. 240 (carried over from
-         when portrait mode handled narrow screens) made the spread floor
-         out at 480px wide, wider than most phone screens and cut off at
-         the edge. 90 keeps a ~180px floor, small enough to fit down to
-         narrow phones while still readable. */
-      minWidth: 90,
+      /* minWidth/maxWidth are PER PAGE (a single page in portrait, one half
+         of the spread in landscape) — usePortrait lets StPageFlip switch
+         itself between the two based on available width: below 2x minWidth
+         it drops to one page at a time (mobile — full-width, no more
+         squeezing two half-size pages into a narrow screen), above that it
+         stays a two-page spread (desktop, where .book-frame's own 680px
+         cap is already well past this 520px threshold). */
+      minWidth: 260,
       maxWidth: 680,
       minHeight: 126,
       maxHeight: 952,
       maxShadowOpacity: 0.5,
       showCover: true,
-      usePortrait: false,
+      usePortrait: true,
       mobileScrollSupport: false,
       flippingTime: 700,
     });

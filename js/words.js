@@ -34,7 +34,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const keywordCloud = document.getElementById("keyword-cloud");
   const keywordResults = document.getElementById("keyword-results");
   const keywordIndexNav = document.getElementById("keyword-index");
+  const keywordSummary = document.getElementById("keyword-summary");
   let activeConsonant = null;
+  let typingTimer = null;
 
   /* "키워드로 찾기" tab: the word list itself has no real tag/category data
      (each word is just a Drive filename), so these are illustrative keywords
@@ -105,8 +107,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (query) {
     /* Search results aren't grouped by ㄱ~ㅎ — they're one flat list, ranked
-       by character overlap with the query (see scoreMatches). */
-    words = scoreMatches(query, words);
+       by character overlap with the query (see scoreMatches), capped to the
+       8 closest matches so an exact/near-exact hit isn't buried under a
+       long tail of loosely-related words. */
+    words = scoreMatches(query, words).slice(0, 8);
     indexNav.hidden = true;
 
     if (!words.length) {
@@ -121,6 +125,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     summary.textContent = `전체 단어 ${words.length}개`;
     indexView.parentNode.insertBefore(summary, indexView);
     renderIndexView(groupWordsByConsonant(words));
+  }
+
+  /* Deep link from elsewhere on the site (e.g. the Work wall's "책에서
+     보기" — see index.html) straight into one word's detail panel, by
+     title rather than page position. */
+  const wordParam = (new URLSearchParams(location.search).get("word") || "").trim();
+  if (wordParam) {
+    const match = allWords.find((w) => w.title === wordParam);
+    if (match) openPanel(match);
   }
 
   function renderKeywordCloud() {
@@ -181,12 +194,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       : allWords;
 
     if (!keywords.length) {
-      const summary = document.createElement("p");
-      summary.className = "words-search-banner";
-      summary.textContent = activeConsonant
+      keywordSummary.textContent = activeConsonant
         ? `"${activeConsonant}" 단어 ${byConsonant.length}개`
         : `전체 단어 ${byConsonant.length}개`;
-      keywordResults.appendChild(summary);
       keywordResults.appendChild(buildWordGrid(byConsonant));
       return;
     }
@@ -202,10 +212,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       .map((entry) => entry.word);
 
     const label = activeConsonant ? `${keywords.join(" + ")} · ${activeConsonant}` : keywords.join(" + ");
-    const summary = document.createElement("p");
-    summary.className = "words-search-banner";
-    summary.textContent = `"${label}" 결과 ${scored.length}개`;
-    keywordResults.appendChild(summary);
+    keywordSummary.textContent = `"${label}" 결과 ${scored.length}개`;
 
     if (!scored.length) {
       const empty = document.createElement("p");
@@ -346,8 +353,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
     indexContent.querySelectorAll(".words-group").forEach((el) => observer.observe(el));
   }
-
-  let typingTimer = null;
 
   function typeTitle(text) {
     clearInterval(typingTimer);

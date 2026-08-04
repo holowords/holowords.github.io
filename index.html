@@ -30,7 +30,7 @@
 
   <section id="about">
     <div>
-      <h1 class="identity-mark" id="identity-mark">holowords</h1>
+      <h1 class="identity-mark" id="identity-mark">holo words</h1>
       <p class="identity-sub" id="identity-sub">홀로둥이의 단어</p>
     </div>
   </section>
@@ -41,7 +41,9 @@
 
   <div class="works-lightbox" id="works-lightbox">
     <div class="works-lightbox__frame">
+      <button class="works-lightbox__close" id="works-lightbox-close" type="button" aria-label="닫기">×</button>
       <img class="works-lightbox__img" id="works-lightbox-img" src="" alt="" />
+      <a class="works-lightbox__book-link" id="works-lightbox-book-link" href="words.html">책에서 보기</a>
     </div>
   </div>
 
@@ -102,10 +104,15 @@
       const wall = document.getElementById("works-wall");
       const lightbox = document.getElementById("works-lightbox");
       const lightboxImg = document.getElementById("works-lightbox-img");
+      const lightboxClose = document.getElementById("works-lightbox-close");
+      const lightboxBookLink = document.getElementById("works-lightbox-book-link");
 
       function openLightbox(src, alt) {
         lightboxImg.src = src;
         lightboxImg.alt = alt;
+        // Each note's filename (메모지_[제목]) doubles as that word's title
+        // on the Words page — link straight to its detail panel there.
+        lightboxBookLink.href = `words.html?word=${encodeURIComponent(alt)}`;
         lightbox.classList.add("active");
         document.body.classList.add("lightbox-open");
       }
@@ -115,6 +122,7 @@
         document.body.classList.remove("lightbox-open");
       }
 
+      lightboxClose.addEventListener("click", closeLightbox);
       lightbox.addEventListener("click", (e) => {
         if (e.target === lightbox) closeLightbox();
       });
@@ -130,7 +138,11 @@
 
         const img = document.createElement("img");
         const src = `image/works/${encodeURIComponent(filename)}`;
-        const alt = filename.replace(/^메모지_/, "").replace(/\.jpg$/i, "");
+        // Same title-derivation for every note, current or future — this is
+        // what "책에서 보기" (see openLightbox) keys off to find the matching
+        // Words entry, so any new 메모지_[제목].(jpg|jpeg|png|webp) dropped
+        // into image/works/ links up automatically, no per-file code needed.
+        const alt = filename.replace(/^메모지_/, "").replace(/\.(jpg|jpeg|png|webp)$/i, "");
         img.src = src;
         img.alt = alt;
         img.loading = "lazy";

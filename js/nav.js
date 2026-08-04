@@ -39,6 +39,10 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
       if (location.hash !== `#${id}`) history.pushState(null, "", `#${id}`);
       showPanel(id);
+      // Left focused, the just-clicked link shows a stray browser focus
+      // ring across the panel that just appeared — drop focus once the
+      // click is handled, same as the Book index links.
+      link.blur();
     });
   });
 
