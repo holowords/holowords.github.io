@@ -12,7 +12,7 @@
    new file just needs a matching word to already exist on the Words page. */
 const WORKS_ITEMS = [
   "메모지_날개.jpg",
-  "메모지_그런거.jpg",
+  "메모지_그런 거.jpg",
   "메모지_눈물상자.jpg",
   "메모지_똑같은동그라미.jpg",
   "메모지_뜬구름 잡는 소리.jpg",

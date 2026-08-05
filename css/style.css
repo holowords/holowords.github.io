@@ -402,6 +402,23 @@ body.lightbox-open .nav-search-wrap {
   border-bottom: 1px solid #e5e0d0;
 }
 
+/* .words-tabs's margin-bottom (the 40px gap before .words-index picks up
+   its own sticky position) is dead space outside the element's own box —
+   with nothing opaque there, list text scrolling past flashes through it
+   as it passes underneath. This pseudo-element extends the tabs' white
+   background down through exactly that gap, anchored to the element's own
+   bottom edge (not a guessed pixel height) so it holds on any tab-bar
+   height, desktop or mobile. */
+.words-tabs::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: #fff;
+}
+
 .words-tab {
   background: none;
   border: none;
@@ -566,6 +583,13 @@ body.lightbox-open .nav-search-wrap {
 @media (max-width: 640px) {
   .words-grid {
     grid-template-columns: repeat(2, 1fr);
+    /* Narrower gap hands the freed-up width straight back to each column
+       (grid columns are 1fr), so thumbnails grow at the same time. */
+    gap: 14px;
+  }
+
+  .words-grid__caption {
+    font-size: 15px;
   }
 
   .words-page {
@@ -579,12 +603,17 @@ body.lightbox-open .nav-search-wrap {
 
   /* Keyword chips: one scrollable row (~4 visible at a time) instead of
      wrapping to several lines, so picking a keyword doesn't push the
-     results down the page. */
+     results down the page. Setting only overflow-x implicitly turns
+     overflow-y into "auto" too (a CSS quirk — a lone non-"visible" axis
+     forces the other to compute the same way), which then clipped the
+     active chip's outline on every side that had no room for it — padding
+     added all around (not just top/bottom) covers the left edge too, where
+     the very first chip's outline sits flush against the scroll start. */
   .keyword-cloud {
     flex-wrap: nowrap;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: 6px;
+    padding: 6px 4px;
   }
 
   .keyword-chip {
@@ -963,7 +992,7 @@ body[data-page="book"] {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 2px;
   border: none;
   background: none;
   padding: 0;

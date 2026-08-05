@@ -343,15 +343,27 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
     if (available.length) setActiveLink(available[0]);
 
+    /* Observing whole .words-group sections (header + its full word list)
+       caused the wrong consonant to light up: a long group's box can still
+       overlap the trigger band even once the *next* group's header has
+       already scrolled up into view, so both fire "intersecting" at once
+       and whichever entry lands last in the batch wins — sometimes the
+       stale one. Observing just the (small, single-line) headers removes
+       that ambiguity entirely. The trigger line itself is pinned to the
+       same pixel offset .words-index sticks at (header height + 100px, via
+       body's padding-top, which reliably resolves --header-offset to a
+       real px value) instead of a viewport percentage, so it lines up with
+       where content actually clears the sticky bar on any screen size. */
+    const triggerTop = (parseFloat(getComputedStyle(document.body).paddingTop) || 0) + 100;
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) setActiveLink(entry.target.querySelector("h2").textContent);
+          if (entry.isIntersecting) setActiveLink(entry.target.textContent);
         });
       },
-      { rootMargin: "-20% 0px -70% 0px" }
+      { rootMargin: `-${triggerTop}px 0px -70% 0px` }
     );
-    indexContent.querySelectorAll(".words-group").forEach((el) => observer.observe(el));
+    indexContent.querySelectorAll(".words-group__header").forEach((el) => observer.observe(el));
   }
 
   function typeTitle(text) {
