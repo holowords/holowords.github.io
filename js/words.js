@@ -350,11 +350,11 @@ document.addEventListener("DOMContentLoaded", async () => {
        and whichever entry lands last in the batch wins — sometimes the
        stale one. Observing just the (small, single-line) headers removes
        that ambiguity entirely. The trigger line itself is pinned to the
-       same pixel offset .words-index sticks at (header height + 100px, via
+       same pixel offset .words-index sticks at (header height + 136px, via
        body's padding-top, which reliably resolves --header-offset to a
        real px value) instead of a viewport percentage, so it lines up with
        where content actually clears the sticky bar on any screen size. */
-    const triggerTop = (parseFloat(getComputedStyle(document.body).paddingTop) || 0) + 100;
+    const triggerTop = (parseFloat(getComputedStyle(document.body).paddingTop) || 0) + 136;
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {

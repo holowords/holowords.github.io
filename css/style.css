@@ -434,7 +434,10 @@ body.lightbox-open .nav-search-wrap {
   top: 100%;
   left: 0;
   right: 0;
-  height: 40px;
+  /* 2px past the 40px gap itself, as slack against sub-pixel rounding
+     between this and .words-search-banner's own sticky offset — the
+     overlap just doubles up white-on-white, so it's free. */
+  height: 42px;
   background: #fff;
 }
 
@@ -467,11 +470,22 @@ body.lightbox-open .nav-search-wrap {
 }
 
 .words-search-banner {
+  /* Sticks right below where .words-tabs's own covered region ends (see
+     its comment) — .words-index and .keyword-cloud then stick another
+     36px down (this banner's own ~16px line height + its 20px
+     padding-bottom), so the two sticky layers stack instead of overlapping.
+     padding rather than margin so the banner's own white background
+     actually covers that 20px gap — a margin sits outside the box, so
+     scrolling content used to show through it. */
+  position: sticky;
+  top: calc(var(--header-offset) + 100px);
+  z-index: 6;
+  background: #fff;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 20px;
+  padding-bottom: 20px;
   font-size: 14px;
   color: #555;
 }
@@ -496,10 +510,18 @@ body.lightbox-open .nav-search-wrap {
 }
 
 .keyword-cloud {
+  /* Sticks at the same height .words-index does (see its comment for why
+     +136px), so the keyword row and the ㄱ~ㅎ column stay pinned together
+     while .keyword-results scrolls underneath — solid background so that
+     scrolling content doesn't show through behind it. */
+  position: sticky;
+  top: calc(var(--header-offset) + 136px);
+  z-index: 5;
+  background: #fff;
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 16px;
+  padding-bottom: 16px;
 }
 
 .keyword-chip {
@@ -653,11 +675,12 @@ body.lightbox-open .nav-search-wrap {
   /* Must match .words-group's scroll-margin-top and .words-group__header's
      top exactly — otherwise the left ㄱ~ㅎ button and the right-hand header
      it maps to end up stuck at different heights when you scroll/click.
-     +100px = the tab bar's own ~60px height plus a 40px gap below it, so
-     that gap holds once .words-tabs and .words-index are both stuck, not
-     just while scrolled to the very top. */
+     +100px = the tab bar's own ~60px height plus a 40px gap below it, where
+     .words-search-banner (see its comment) now sticks; +36px on top of
+     that is the banner's own line height + margin, so it and .words-index
+     stack instead of overlapping. */
   position: sticky;
-  top: calc(var(--header-offset) + 100px);
+  top: calc(var(--header-offset) + 136px);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -721,7 +744,7 @@ body.lightbox-open .nav-search-wrap {
   /* So clicking a ㄱ~ㅎ link scrolls the group's header exactly to the
      height it sticks at (see .words-index / .words-group__header), instead
      of landing a bit short or past it. */
-  scroll-margin-top: calc(var(--header-offset) + 100px);
+  scroll-margin-top: calc(var(--header-offset) + 136px);
 }
 
 .words-group__header {
@@ -731,7 +754,7 @@ body.lightbox-open .nav-search-wrap {
   padding-bottom: 8px;
   margin-bottom: 16px;
   position: sticky;
-  top: calc(var(--header-offset) + 100px);
+  top: calc(var(--header-offset) + 136px);
   z-index: 5;
   background: #fff;
 }
@@ -756,7 +779,7 @@ body.lightbox-open .nav-search-wrap {
   border: none;
   font: inherit;
   font-family: "Gowun Dodum", sans-serif;
-  padding: 16px 4px;
+  padding: 10px 4px;
   cursor: pointer;
   font-size: 17px;
   color: var(--ink);
