@@ -136,6 +136,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (match) openPanel(match);
   }
 
+  /* Deterministic per-chip stagger for the hue-shift animation (see
+     .keyword-chip in style.css) — same formula used elsewhere on the site
+     for tilt/offset, so chips drift out of sync with each other on every
+     load instead of all shifting color in lockstep. */
+  function seededRandom(seed) {
+    const x = Math.sin(seed * 9973) * 43758.5453;
+    return x - Math.floor(x);
+  }
+
   function renderKeywordCloud() {
     DUMMY_KEYWORDS.forEach((keyword, i) => {
       const palette = TAG_PALETTE[i % TAG_PALETTE.length];
@@ -145,6 +154,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       chip.textContent = keyword;
       chip.style.background = palette.bg;
       chip.style.color = palette.color;
+      const duration = 3 + seededRandom(i + 1) * 3;
+      chip.style.animationDuration = `${duration.toFixed(2)}s`;
+      chip.style.animationDelay = `-${(seededRandom(i + 50) * duration).toFixed(2)}s`;
       chip.addEventListener("click", () => {
         if (activeKeywords.has(keyword)) {
           activeKeywords.delete(keyword);

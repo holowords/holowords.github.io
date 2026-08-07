@@ -59,8 +59,23 @@ document.addEventListener("DOMContentLoaded", () => {
     indexMoreBtn.classList.toggle("expanded", expanded);
   });
 
+  /* In landscape (two-page spread), StPageFlip's getCurrentPageIndex()
+     always reports the LEFT page of the current spread — so turning to an
+     entry whose BOOK_ENTRY_PAGES page happens to be the RIGHT page of its
+     pair landed one page short of what page===current expected, and that
+     button's circle never lit up. showCover:true shows the front cover
+     (page 0) alone, so interior spreads pair as (1,2), (3,4), (5,6)... —
+     odd pages are always the left/current one, even pages the right one
+     one page ahead. Normalizing both sides to their spread's left page
+     before comparing fixes it regardless of which side of the pair either
+     number falls on. */
+  function spreadStart(page) {
+    return page > 0 && page % 2 === 0 ? page - 1 : page;
+  }
+
   function updateIndexActive(current) {
-    indexButtons.forEach(({ btn, page }) => btn.classList.toggle("active", page === current));
+    const currentSpreadStart = spreadStart(current);
+    indexButtons.forEach(({ btn, page }) => btn.classList.toggle("active", spreadStart(page) === currentSpreadStart));
   }
 
   /* Only matters in landscape (desktop/tablet, two-page spread) — there,

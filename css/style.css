@@ -524,6 +524,21 @@ body.lightbox-open .nav-search-wrap {
   padding-bottom: 16px;
 }
 
+/* Reference: semacoral.org's tag cloud — each chip's color drifts slowly
+   and continuously through the hue wheel rather than sitting static.
+   hue-rotate keeps every chip's own lightness/contrast intact while
+   cycling its hue, so text stays readable throughout. Duration/delay are
+   set per chip in words.js (seeded, not truly random) so they drift out
+   of sync with each other instead of all shifting in lockstep. */
+@keyframes keyword-hue-shift {
+  from {
+    filter: hue-rotate(0deg) saturate(1.4);
+  }
+  to {
+    filter: hue-rotate(360deg) saturate(1.4);
+  }
+}
+
 .keyword-chip {
   border: none;
   border-radius: 6px;
@@ -533,7 +548,14 @@ body.lightbox-open .nav-search-wrap {
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  animation: keyword-hue-shift linear infinite;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .keyword-chip {
+    animation: none;
+  }
 }
 
 .keyword-chip:hover {
@@ -1071,13 +1093,13 @@ body[data-page="book"] {
   display: flex;
 }
 
-/* Quick-jump index (pages 1–80), 16 per row over 5 rows. */
+/* Quick-jump index (pages 1–80), 20 per row over 4 rows. */
 .book-index {
   display: grid;
-  grid-template-columns: repeat(16, 1fr);
+  grid-template-columns: repeat(20, 1fr);
   gap: 1px;
   width: 100%;
-  max-width: 800px;
+  max-width: 600px;
   margin: 0 auto;
 }
 
