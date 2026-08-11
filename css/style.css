@@ -153,14 +153,16 @@ body.lightbox-open .nav-search-wrap {
 #about {
   height: calc(100vh - var(--header-offset));
   overflow-y: auto;
+  /* overflow:auto panels are auto-focusable in Chrome (for keyboard arrow
+     scrolling), which draws its default blue focus ring around the whole
+     panel the moment it's scrolled/clicked into. There's nothing to focus
+     here for accessibility purposes that isn't already reachable via the
+     nav links and the content's own interactive elements. */
+  outline: none;
   display: none;
   position: relative;
   background-color: #d9d9d8;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cline x1='40' y1='0' x2='40' y2='40' stroke='%23b3b3b2' stroke-width='1' stroke-dasharray='2,3'/%3E%3Cline x1='0' y1='40' x2='40' y2='40' stroke='%23b3b3b2' stroke-width='1' stroke-dasharray='2,3'/%3E%3C/svg%3E");
-  /* Matches the About image's own grid density at the size it's now
-     displayed (see .about-image) — its ~55px cells at 2792px natural
-     width scale to ~22px once shown at up to 1100px, so the surrounding
-     page grid picks up right where the image's grid leaves off. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cline x1='40' y1='0' x2='40' y2='40' stroke='%23a0a09f' stroke-width='1' stroke-dasharray='2,3'/%3E%3Cline x1='0' y1='40' x2='40' y2='40' stroke='%23a0a09f' stroke-width='1' stroke-dasharray='2,3'/%3E%3C/svg%3E");
   background-size: 22px 22px;
   text-align: center;
 }
@@ -169,22 +171,162 @@ body.lightbox-open .nav-search-wrap {
   display: block;
 }
 
-/* The hero title alone fills the first screen (centered, like before);
-   the About image (see index.html) follows in normal flow right after
-   it, so scrolling within the About tab — not switching tabs — reveals
-   it, same as it looked before this became a fixed-height panel. */
 .about-hero {
   min-height: calc(100vh - var(--header-offset));
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 80px 24px;
+  position: relative;
 }
 
-.about-image {
-  display: block;
-  width: 100%;
+/* Bounces in place to invite scrolling; also doubles as a click-to-advance
+   shortcut down to .about-intro (see index.html) since #about's own
+   overflow-y:auto already reveals it on a normal scroll/wheel/drag. */
+.about-scroll-cue {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: none;
+  background: none;
+  padding: 4px 12px;
+  font-size: 28px;
+  line-height: 1;
+  color: #000;
+  cursor: pointer;
+  animation: about-scroll-cue-bounce 1.6s ease-in-out infinite;
+}
+
+@keyframes about-scroll-cue-bounce {
+  0%,
+  100% {
+    transform: translate(-50%, 0);
+  }
+  50% {
+    transform: translate(-50%, 8px);
+  }
+}
+
+.about-intro {
+  min-height: calc(100vh - var(--header-offset));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 80px 24px;
+  text-align: center;
+  position: relative;
+}
+
+.about-intro__eyebrow {
+  font-family: "Manrope", sans-serif;
+  font-size: clamp(32px, 5vw, 56px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #000;
   margin: 0;
+}
+
+.select-highlight--welcome {
+  margin: 0;
+}
+
+.about-intro__welcome {
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: clamp(16px, 2.2vw, 22px);
+  color: #000;
+  margin: 0;
+}
+
+.about-intro__welcome.typing::after {
+  content: "|";
+  margin-left: 0.1em;
+  animation: word-panel-cursor-blink 0.8s step-end infinite;
+}
+
+.about-intro__body {
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: clamp(14px, 1.6vw, 17px);
+  color: #000;
+  line-height: 1.8;
+  max-width: 640px;
+  margin: 0;
+}
+
+.about-intro__footer {
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: clamp(14px, 1.6vw, 17px);
+  color: #000;
+  margin: 4px 0 0;
+}
+
+/* "홀로둥이란?" glossary toggle, pinned to the intro page's bottom-right
+   corner. The panel sits above the button (bottom:100%) since the button
+   itself already sits at the page's bottom edge — expanding downward
+   would run off the page. */
+.about-glossary {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  text-align: left;
+}
+
+.about-glossary__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #1a1a1a;
+  background: #fff;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font: inherit;
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 14px;
+  color: #000;
+  cursor: pointer;
+}
+
+.about-glossary__chevron {
+  transition: transform 0.2s ease;
+}
+
+.about-glossary.open .about-glossary__chevron {
+  transform: rotate(180deg);
+}
+
+.about-glossary__panel {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 10px);
+  width: min(380px, 80vw);
+  background: #fff;
+  border: 1px solid #1a1a1a;
+  border-radius: 12px;
+  padding: 20px;
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 14px;
+  line-height: 1.8;
+  color: #000;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+
+.about-glossary.open .about-glossary__panel {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.about-glossary__panel p + p {
+  margin-top: 14px;
 }
 
 .identity-mark {
@@ -192,7 +334,7 @@ body.lightbox-open .nav-search-wrap {
   font-size: clamp(48px, 9vw, 120px);
   font-weight: 700;
   letter-spacing: -0.02em;
-  color: #1a1a1abf;
+  color: #000;
   margin: 0;
   line-height: 1;
 }
@@ -204,17 +346,30 @@ body.lightbox-open .nav-search-wrap {
 }
 
 .identity-sub {
-  margin-top: 20px;
   font-family: "Gowun Dodum", sans-serif;
   font-size: clamp(14px, 2vw, 18px);
   letter-spacing: 0.08em;
-  color: #1a1a1abf;
+  color: #000;
 }
 
 .identity-sub.typing::after {
   content: "|";
   margin-left: 0.1em;
   animation: word-panel-cursor-blink 0.8s step-end infinite;
+}
+
+/* Text-selection-highlight look: a translucent bar sits behind the text —
+   the wrapper's own background, painted behind its child content for
+   free — mimicking a mobile text-selection drag without the drag handles
+   themselves. */
+.select-highlight {
+  display: inline-flex;
+  background: rgba(164, 205, 250, 0.55);
+  padding: 0.05em 0.2em;
+}
+
+.select-highlight--sub {
+  margin-top: 20px;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -224,9 +379,100 @@ body.lightbox-open .nav-search-wrap {
 #work {
   height: calc(100vh - var(--header-offset));
   overflow-y: auto;
+  outline: none;
   display: none;
-  background: #e7e7e4;
+  position: relative;
+  background-color: #e7e7e4;
+  /* Same dashed grid as #about, so the two tabs read as one consistent
+     "wall" surface. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cline x1='40' y1='0' x2='40' y2='40' stroke='%23a0a09f' stroke-width='1' stroke-dasharray='2,3'/%3E%3Cline x1='0' y1='40' x2='40' y2='40' stroke='%23a0a09f' stroke-width='1' stroke-dasharray='2,3'/%3E%3C/svg%3E");
+  background-size: 22px 22px;
   padding: 90px 40px 110px;
+}
+
+/* Small Instagram-glyph toggle pinned to the work wall's top-right corner;
+   clicking it drops down a mini preview card that links out to the real
+   profile (no embed — Instagram's API doesn't allow one without
+   server-side auth) rather than jumping straight there. */
+.work-instagram {
+  position: absolute;
+  top: 24px;
+  right: 40px;
+  z-index: 5;
+}
+
+.work-instagram__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 9px;
+  background: #fff;
+  color: #1a1a1a;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.work-instagram__icon svg {
+  width: 19px;
+  height: 19px;
+}
+
+.work-instagram__panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 220px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+
+.work-instagram.open .work-instagram__panel {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.work-instagram__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  color: #1a1a1a;
+}
+
+.work-instagram__header svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.work-instagram__panel p {
+  margin: 10px 0 14px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #444;
+}
+
+.work-instagram__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a1a;
+  border-bottom: 1px solid #1a1a1a;
 }
 
 #work.active {
@@ -268,6 +514,32 @@ body.lightbox-open .nav-search-wrap {
   position: relative;
 }
 
+/* Notes rise into place (obys.agency-style) every time #work actually
+   becomes visible — landing on it, clicking the Work nav link, or a
+   refresh while already on #work all flip #work from display:none to
+   block, which is exactly when a CSS animation on a now-matching selector
+   (re)starts from the top. `backwards` (not `forwards`) is deliberate: it
+   fills the pre-delay gap with the "from" state so staggered notes wait
+   invisible, but once each note's animation ends the transform/opacity
+   fall back to the plain cascade (identical to the "to" state, so no
+   jump) — leaving the :hover rule free to take over again instead of
+   being permanently pinned under a forwards-filled animation. */
+#work.active .works-note {
+  animation: work-note-rise 1.1s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation-delay: var(--rise-delay, 0ms);
+}
+
+@keyframes work-note-rise {
+  from {
+    opacity: 0;
+    transform: rotate(var(--tilt, 0deg)) translateY(56px);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(var(--tilt, 0deg)) translateY(0);
+  }
+}
+
 .works-note img {
   display: block;
   width: 100%;
@@ -278,6 +550,11 @@ body.lightbox-open .nav-search-wrap {
 @media (max-width: 640px) {
   #work {
     padding: 60px 20px 80px;
+  }
+
+  .work-instagram {
+    top: 16px;
+    right: 20px;
   }
 
   .works-wall {
@@ -368,6 +645,7 @@ body.lightbox-open .nav-search-wrap {
 #contact {
   height: calc(100vh - var(--header-offset));
   overflow-y: auto;
+  outline: none;
   display: none;
   flex-direction: column;
   align-items: center;
@@ -414,7 +692,8 @@ body.lightbox-open .nav-search-wrap {
   top: var(--header-offset);
   z-index: 10;
   display: flex;
-  gap: 24px;
+  align-items: flex-end;
+  gap: 0;
   margin-bottom: 40px;
   padding-top: 16px;
   background: #fff;
@@ -441,27 +720,46 @@ body.lightbox-open .nav-search-wrap {
   background: #fff;
 }
 
+/* Trapezoid tab (reference): rounded top-left corner and a rounded bend
+   into the 45° right edge, both too curved for a straight-line clip-path
+   polygon alone — the actual shape is an SVG path built per tab in
+   words.js (shapeTabs()), sized to each button's real rendered
+   width/height. Flex-centers its label so the text sits in the middle of
+   the shape rather than trailing the uneven left/right space the diagonal
+   cut leaves. Each tab keeps its own fixed color identity (전체단어 blue,
+   키워드로 찾기 pink) rather than switching with selection. */
 .words-tab {
-  background: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: none;
   font: inherit;
-  font-size: 17px;
-  padding: 10px 4px 12px;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 10px 44px 14px 18px;
   margin-bottom: -1px;
   cursor: pointer;
-  color: #999;
-  border-bottom: 2px solid transparent;
-  transition: color 0.2s ease, border-color 0.2s ease;
+  color: #1a1a1a;
+  opacity: 0.5;
+  position: relative;
+  transition: opacity 0.2s ease, box-shadow 0.15s ease;
+}
+
+.words-tab[data-tab="all"] {
+  background: #2c90f4;
+}
+
+.words-tab[data-tab="search"] {
+  background: #ed6cef;
 }
 
 .words-tab:hover {
-  color: var(--ink);
+  opacity: 0.75;
 }
 
 .words-tab.active {
-  color: var(--ink);
-  font-weight: 700;
-  border-bottom-color: var(--ink);
+  opacity: 1;
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.15);
 }
 
 .words-placeholder {
@@ -542,7 +840,7 @@ body.lightbox-open .nav-search-wrap {
 .keyword-chip {
   border: none;
   border-radius: 6px;
-  padding: 9px 16px;
+  padding: 7px 14px;
   font: inherit;
   font-family: "Gowun Dodum", sans-serif;
   font-size: 14px;
@@ -630,7 +928,7 @@ body.lightbox-open .nav-search-wrap {
      of stopping at the end of the word. */
   align-self: flex-start;
   font-family: "Gowun Dodum", sans-serif;
-  font-size: 17px;
+  font-size: 16px;
   color: var(--ink);
   background-image: linear-gradient(120deg, #fff176 0%, #fff176 100%);
   background-repeat: no-repeat;
@@ -855,6 +1153,7 @@ body.lightbox-open .nav-search-wrap {
   z-index: 1200;
   padding: 32px 28px;
   overflow-y: auto;
+  outline: none;
 }
 
 /* Soft vignette along the top and inner edge, like a book page curving into
@@ -1045,7 +1344,7 @@ body[data-page="book"] {
   align-items: center;
   justify-content: center;
   gap: 28px;
-  padding: 48px 24px 72px;
+  padding: 24px 24px 72px;
 }
 
 .book-cover-launch[hidden] {

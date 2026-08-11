@@ -29,14 +29,63 @@
   </div>
 
   <section id="about">
-    <div class="about-hero">
-      <h1 class="identity-mark" id="identity-mark">holo words</h1>
-      <p class="identity-sub" id="identity-sub">홀로둥이의 단어</p>
+    <div class="about-hero" id="about-hero">
+      <div class="select-highlight select-highlight--mark">
+        <h1 class="identity-mark" id="identity-mark">holo words</h1>
+      </div>
+      <div class="select-highlight select-highlight--sub">
+        <p class="identity-sub" id="identity-sub">홀로둥이의 단어</p>
+      </div>
+      <button class="about-scroll-cue" id="about-scroll-cue" type="button" aria-label="다음 내용 보기">⌄</button>
     </div>
-    <img class="about-image" src="image/about/About%20이미지.png" alt="About" />
+    <div class="about-intro" id="about-intro">
+      <p class="about-intro__eyebrow">holo words</p>
+      <div class="select-highlight select-highlight--welcome">
+        <p class="about-intro__welcome" id="about-welcome">안녕하세요. 홀로둥이의 단어에 오신 걸 환영합니다.</p>
+      </div>
+      <p class="about-intro__body">이곳은 책에서 수집한 단어들을 모아둔 공간입니다. 살아가며 느낀 감정과 가치관, 그리고 세상을 견디게 하는 힘이 된 단어들을 차곡차곡 적어놓았습니다.</p>
+      <p class="about-intro__footer" id="about-footer">세상에 발 붙이고 살아가는 모든 홀로둥이를 응원합니다.</p>
+      <div class="about-glossary" id="about-glossary">
+        <div class="about-glossary__panel" id="about-glossary-panel">
+          <p>
+            현호정 소설 『고고의 구멍』에 등장하는 단어입니다.<br />
+            행성 ‘망울’의 극지 마을, 일 년 내내 겨울이 지속되고 오직 쌍둥이만 태어나는 그곳에서 ‘고고’는 단 하나뿐인 존재, 홀로둥이로 태어납니다.
+          </p>
+          <p>
+            이 단어에서 영감을 받아<br />
+            홀로 저마다의 세계에서 살아가는 이들에게 애정을 보내며,<br />
+            그들을 ‘홀로둥이’라 부르기로 했습니다.
+          </p>
+        </div>
+        <button class="about-glossary__toggle" id="about-glossary-toggle" type="button" aria-expanded="false" aria-controls="about-glossary-panel">
+          홀로둥이란? <span class="about-glossary__chevron">⌄</span>
+        </button>
+      </div>
+    </div>
   </section>
 
   <section id="work">
+    <div class="work-instagram" id="work-instagram">
+      <button class="work-instagram__icon" id="work-instagram-toggle" type="button" aria-expanded="false" aria-controls="work-instagram-panel" aria-label="인스타그램 미리보기">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="5" />
+          <circle cx="12" cy="12" r="4" />
+          <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+        </svg>
+      </button>
+      <div class="work-instagram__panel" id="work-instagram-panel">
+        <div class="work-instagram__header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="5" />
+            <circle cx="12" cy="12" r="4" />
+            <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+          </svg>
+          <span>@h_r_shhh</span>
+        </div>
+        <p>인스타그램에서 더 많은 작업을 만나보세요.</p>
+        <a class="work-instagram__link" href="https://www.instagram.com/h_r_shhh/" target="_blank" rel="noopener noreferrer">바로가기 ↗</a>
+      </div>
+    </div>
     <div class="works-wall" id="works-wall"></div>
   </section>
 
@@ -72,13 +121,82 @@
         }, speed);
       }
 
+      // Same char-by-char typing as typeText, but clears and starts over
+      // once the full text has sat on screen for `pause` ms — an endless
+      // typewriter loop for the About intro's closing line.
+      function loopTypeText(el, text, speed, pause) {
+        const chars = Array.from(text);
+        function run() {
+          el.textContent = "";
+          el.classList.add("typing");
+          let i = 0;
+          const timer = setInterval(() => {
+            el.textContent += chars[i];
+            i++;
+            if (i >= chars.length) {
+              clearInterval(timer);
+              setTimeout(run, pause);
+            }
+          }, speed);
+        }
+        run();
+      }
+
       const mark = document.getElementById("identity-mark");
       const sub = document.getElementById("identity-sub");
+      const markText = mark.textContent;
       const subText = sub.textContent;
-      sub.textContent = "";
 
-      typeText(mark, mark.textContent, 220, () => {
-        typeText(sub, subText, 120);
+      // Types the mark, then the subtitle, waits, clears both, and starts
+      // over — an endless loop of the same one-shot typeText sequence.
+      // Sub is blanked up front since typeText only clears its own element
+      // the moment it's called, and sub's turn doesn't come until mark
+      // finishes — without this its full text would sit on screen (a
+      // leftover from the previous lap) while mark is mid-retype.
+      function runHeroTyping() {
+        sub.textContent = "";
+        typeText(mark, markText, 220, () => {
+          typeText(sub, subText, 120, () => {
+            setTimeout(runHeroTyping, 1800);
+          });
+        });
+      }
+      runHeroTyping();
+
+      const aboutWelcome = document.getElementById("about-welcome");
+      loopTypeText(aboutWelcome, aboutWelcome.textContent, 90, 1800);
+
+      // Scrolling within the About tab already reveals the intro page below
+      // the hero (both are min-height:100vh sections in normal flow) — this
+      // just adds the click-to-advance shortcut on the cue button.
+      const aboutIntro = document.getElementById("about-intro");
+      const scrollCue = document.getElementById("about-scroll-cue");
+      scrollCue.addEventListener("click", () => {
+        aboutIntro.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+
+      const glossary = document.getElementById("about-glossary");
+      const glossaryToggle = document.getElementById("about-glossary-toggle");
+      glossaryToggle.addEventListener("click", () => {
+        const open = glossary.classList.toggle("open");
+        glossaryToggle.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+    })();
+  </script>
+  <script>
+    (() => {
+      const instagram = document.getElementById("work-instagram");
+      const instagramToggle = document.getElementById("work-instagram-toggle");
+      instagramToggle.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const open = instagram.classList.toggle("open");
+        instagramToggle.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+      document.addEventListener("click", (e) => {
+        if (instagram.classList.contains("open") && !instagram.contains(e.target)) {
+          instagram.classList.remove("open");
+          instagramToggle.setAttribute("aria-expanded", "false");
+        }
       });
     })();
   </script>
@@ -136,6 +254,7 @@
         note.className = "works-note";
         const tilt = (seededRandom(i + 1) - 0.5) * 12;
         note.style.setProperty("--tilt", `${tilt.toFixed(2)}deg`);
+        note.style.setProperty("--rise-delay", `${Math.min(i * 55, 900)}ms`);
 
         const img = document.createElement("img");
         const src = `image/works/${encodeURIComponent(filename)}`;

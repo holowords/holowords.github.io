@@ -20,6 +20,33 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
+  /* Trapezoid tab: left edge vertical (90°), right edge at `angle` from the
+     horizontal (so the horizontal run needed is h / tan(angle)), with the
+     top-left corner and the top/diagonal join both rounded — a straight-
+     line clip-path polygon can't curve those, so (like before) this is an
+     SVG path built from each button's own actual rendered size rather
+     than hardcoded once in CSS. The top-right curve is a quadratic bezier
+     that uses the original sharp corner as its control point, pulled back
+     by `bend` along the top edge and along the diagonal on each side. */
+  function shapeTabs() {
+    const radius = 8;
+    const bend = 9;
+    const angle = (60 * Math.PI) / 180;
+    tabs.querySelectorAll(".words-tab").forEach((btn) => {
+      const w = btn.offsetWidth;
+      const h = btn.offsetHeight;
+      const cornerX = w - h / Math.tan(angle);
+      const bendDX = bend * Math.cos(angle);
+      const bendDY = bend * Math.sin(angle);
+      const d =
+        `M ${radius} 0 L ${cornerX - bend} 0 ` +
+        `Q ${cornerX} 0, ${cornerX + bendDX} ${bendDY} ` +
+        `L ${w} ${h} L 0 ${h} L 0 ${radius} Q 0 0, ${radius} 0 Z`;
+      btn.style.clipPath = `path("${d}")`;
+    });
+  }
+  shapeTabs();
+
   const overlay = document.getElementById("word-panel-overlay");
   const panel = document.getElementById("word-panel");
   const panelBody = document.getElementById("word-panel-body");
@@ -45,15 +72,15 @@ document.addEventListener("DOMContentLoaded", async () => {
      further (a word must match every active keyword to stay in the list). */
   const DUMMY_KEYWORDS = ["감정", "행동", "사물", "자연", "사람", "빛", "어둠", "소리", "색채", "시간", "기억"];
   const TAG_PALETTE = [
-    { bg: "#fbe4e4", color: "#1a1a1a" },
-    { bg: "#e4ecfb", color: "#1a1a1a" },
-    { bg: "#e4fbe9", color: "#1a1a1a" },
-    { bg: "#fbf3e4", color: "#1a1a1a" },
-    { bg: "#efe4fb", color: "#1a1a1a" },
-    { bg: "#fbe4f6", color: "#1a1a1a" },
-    { bg: "#e4fbf7", color: "#1a1a1a" },
-    { bg: "#fff6d6", color: "#1a1a1a" },
-    { bg: "#dcefe0", color: "#1a1a1a" },
+    { bg: "#fec8c8", color: "#1a1a1a" },
+    { bg: "#c8dafe", color: "#1a1a1a" },
+    { bg: "#c8fed3", color: "#1a1a1a" },
+    { bg: "#feebc8", color: "#1a1a1a" },
+    { bg: "#e2c8fe", color: "#1a1a1a" },
+    { bg: "#fec8f2", color: "#1a1a1a" },
+    { bg: "#c8fef4", color: "#1a1a1a" },
+    { bg: "#fff0bc", color: "#1a1a1a" },
+    { bg: "#c2efcc", color: "#1a1a1a" },
   ];
   const activeKeywords = new Set();
 
