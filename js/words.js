@@ -65,11 +65,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   let activeConsonant = null;
   let typingTimer = null;
 
-  /* "키워드로 찾기" tab: the word list itself has no real tag/category data
-     (each word is just a Drive filename), so these are illustrative keywords
-     covering themes that plausibly show up across the list. Keywords are
-     multi-select — each additional one selected narrows the result set
-     further (a word must match every active keyword to stay in the list). */
+  /* "키워드로 찾기" tab: each word is actually tagged against this fixed set
+     by meaning (see js/words-keywords.js's WORD_KEYWORDS, keyed by title).
+     Keywords are multi-select — each additional one narrows the result set
+     further (a word must carry every active keyword to stay in the list). */
   const DUMMY_KEYWORDS = ["감정", "행동", "사물", "자연", "사람", "빛", "어둠", "소리", "색채", "시간", "기억"];
   const TAG_PALETTE = [
     { bg: "#fec8c8", color: "#1a1a1a" },
@@ -221,10 +220,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  /* A word must score above 0 against every active keyword, and match the
-     active consonant filter if one is set, to survive — each extra filter
-     can only shrink the result set, never grow it. With nothing selected
-     yet, show every word in the same grid so the tab isn't empty. */
+  /* A word must carry every active keyword (per WORD_KEYWORDS, see
+     js/words-keywords.js) and match the active consonant filter if one is
+     set, to survive — each extra filter can only shrink the result set,
+     never grow it. With nothing selected yet, show every word in the same
+     grid so the tab isn't empty. */
   function runKeywordSearch() {
     keywordResults.innerHTML = "";
     const keywords = Array.from(activeKeywords);
@@ -240,27 +240,22 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-    const scored = byConsonant
-      .map((word) => {
-        const title = word.title.toLowerCase();
-        const scores = keywords.map((kw) => scoreTitle(title, kw));
-        return scores.every((s) => s > 0) ? { word, score: scores.reduce((a, b) => a + b, 0) } : null;
-      })
-      .filter(Boolean)
-      .sort((a, b) => b.score - a.score)
-      .map((entry) => entry.word);
+    const matched = byConsonant.filter((word) => {
+      const tags = WORD_KEYWORDS[word.title] || [];
+      return keywords.every((kw) => tags.includes(kw));
+    });
 
     const label = activeConsonant ? `${keywords.join(" + ")} · ${activeConsonant}` : keywords.join(" + ");
-    keywordSummary.textContent = `"${label}" 결과 ${scored.length}개`;
+    keywordSummary.textContent = `"${label}" 결과 ${matched.length}개`;
 
-    if (!scored.length) {
+    if (!matched.length) {
       const empty = document.createElement("p");
       empty.className = "words-placeholder";
       empty.textContent = "일치하는 단어가 없습니다.";
       keywordResults.appendChild(empty);
       return;
     }
-    keywordResults.appendChild(buildWordGrid(scored));
+    keywordResults.appendChild(buildWordGrid(matched));
   }
 
   function renderSearchBanner(query, count) {
