@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", async () => {
      by meaning (see js/words-keywords.js's WORD_KEYWORDS, keyed by title).
      Keywords are multi-select — each additional one narrows the result set
      further (a word must carry every active keyword to stay in the list). */
-  const DUMMY_KEYWORDS = ["감정", "행동", "사물", "자연", "사람", "빛", "어둠", "소리", "색채", "시간", "기억"];
+  const DUMMY_KEYWORDS = ["빛", "소리", "어둠", "색채", "감정", "행동", "사물", "자연", "사람", "시간", "기억"];
   const TAG_PALETTE = [
     { bg: "#fec8c8", color: "#1a1a1a" },
     { bg: "#c8dafe", color: "#1a1a1a" },

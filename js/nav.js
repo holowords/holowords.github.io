@@ -10,10 +10,10 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  /* Home page: About / Work / Contact are tabs, not scroll-stacked
+  /* Home page: About / Work / bookcase are tabs, not scroll-stacked
      sections — only one is ever visible, switched by clicking nav links
      (or landing on a #hash), never by scrolling past one into the next. */
-  const panelIds = ["about", "work", "contact"];
+  const panelIds = ["about", "work", "bookcase"];
   const panels = panelIds.map((id) => document.getElementById(id)).filter(Boolean);
 
   if (!panels.length) return;
