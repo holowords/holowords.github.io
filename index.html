@@ -12,11 +12,12 @@
 <body data-page="home">
   <nav class="site-nav">
     <div class="site-nav__links">
-      <a href="#about" data-nav="about">About</a>
+      <a href="#about" data-nav="about" id="nav-holo-words">holo words</a>
+      <a href="#about" data-nav="about" id="nav-about">About</a>
       <a href="words.html" data-nav="words">Words</a>
       <a href="#work" data-nav="work">Work</a>
       <a href="book.html" data-nav="book">Book</a>
-      <a href="#bookcase" data-nav="bookcase">bookcase</a>
+      <a href="#bookcase" data-nav="bookcase">book case</a>
     </div>
   </nav>
 
@@ -147,46 +148,6 @@
         run();
       }
 
-      // Same endless typewriter loop as loopTypeText, but `segments` is a
-      // list of { text, underline } runs — the hand-drawn underline (see
-      // .hand-underline) has to be a wrapping <span>, so this builds up
-      // innerHTML each tick (grouped by run, not one span per character)
-      // instead of the plain textContent loopTypeText uses.
-      function loopTypeSegments(el, segments, speed, pause) {
-        const flatChars = [];
-        segments.forEach((seg) => {
-          Array.from(seg.text).forEach((ch) => flatChars.push({ ch, underline: !!seg.underline }));
-        });
-        function render(count) {
-          let html = "";
-          let i = 0;
-          while (i < count) {
-            const underline = flatChars[i].underline;
-            let chunk = "";
-            while (i < count && flatChars[i].underline === underline) {
-              chunk += flatChars[i].ch;
-              i++;
-            }
-            html += underline ? `<span class="hand-underline">${chunk}</span>` : chunk;
-          }
-          return html;
-        }
-        function run() {
-          el.innerHTML = "";
-          el.classList.add("typing");
-          let i = 0;
-          const timer = setInterval(() => {
-            i++;
-            el.innerHTML = render(i);
-            if (i >= flatChars.length) {
-              clearInterval(timer);
-              setTimeout(run, pause);
-            }
-          }, speed);
-        }
-        run();
-      }
-
       const mark = document.getElementById("identity-mark");
       const sub = document.getElementById("identity-sub");
       const markText = mark.textContent;
@@ -211,13 +172,6 @@
       const aboutWelcome = document.getElementById("about-welcome");
       loopTypeText(aboutWelcome, aboutWelcome.textContent, 90, 1800);
 
-      const aboutFooter = document.getElementById("about-footer");
-      loopTypeSegments(
-        aboutFooter,
-        [{ text: "세상에 발 붙이고 살아가는 모든 " }, { text: "홀로둥이를 응원", underline: true }, { text: "합니다." }],
-        90,
-        1800
-      );
 
       // Scrolling within the About tab already reveals the intro page below
       // the hero (both are min-height:100vh sections in normal flow) — this

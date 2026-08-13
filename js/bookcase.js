@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
        written reflection tends to be a meatier read anyway. */
     const width =
       book.pages != null
-        ? Math.max(22, Math.min(64, 14 + book.pages * 0.11))
+        ? Math.max(22, Math.min(82, 14 + book.pages * 0.11))
         : Math.max(22, Math.min(64, 22 + (book.memo || "").length / 45));
     spine.style.width = `${width.toFixed(0)}px`;
 

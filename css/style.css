@@ -54,11 +54,11 @@ a {
 .site-nav__links {
   display: flex;
   align-items: center;
-  gap: 48px;
+  gap: 28px;
 }
 
 .site-nav a {
-  font-size: 15px;
+  font-size: 14px;
   letter-spacing: 0.02em;
   padding: 8px 4px;
   border-bottom: 2px solid transparent;
@@ -374,19 +374,6 @@ body.lightbox-open .nav-search-wrap {
 .text-highlight {
   background: rgba(161, 197, 246, 0.55);
   padding: 0.02em 0.15em;
-}
-
-/* Hand-drawn-marker underline: a gently repeating wave (not a straight
-   border-bottom) so it reads as sketched rather than typeset. Used on typed
-   text (see loopTypeSegments in index.html), which rebuilds this span's
-   innerHTML every tick — background-image keeps the line independent of
-   that per-character DOM churn instead of needing its own element. */
-.hand-underline {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='6'%3E%3Cpath d='M0 3.5 Q4 1, 7.5 3.5 T15 3.5 T22.5 3.5 T30 3.5' fill='none' stroke='%231a1a1a' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat: repeat-x;
-  background-position: 0 100%;
-  background-size: 15px 6px;
-  padding-bottom: 3px;
 }
 
 .select-highlight--sub {
@@ -717,7 +704,7 @@ body.lightbox-open .nav-search-wrap {
   writing-mode: vertical-rl;
   text-orientation: mixed;
   font-family: "Gowun Dodum", sans-serif;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   letter-spacing: 0.02em;
   color: rgba(26, 26, 26, 0.85);
@@ -750,10 +737,8 @@ body.lightbox-open .nav-search-wrap {
   top: 0;
   right: 0;
   height: 100%;
-  width: 50%;
+  width: 62%;
   background: #fff;
-  border-top-left-radius: 14px;
-  box-shadow: -30px 0 60px rgba(0, 0, 0, 0.28), -6px 0 16px rgba(0, 0, 0, 0.14);
   transform: translateX(100%);
   transition: transform 0.3s ease;
   z-index: 1200;
@@ -764,6 +749,12 @@ body.lightbox-open .nav-search-wrap {
 
 .bookcase-panel.open {
   transform: translateX(0);
+  /* Only while open — box-shadow paints outside the border box, so even
+     with the panel pushed off past the right edge via translateX(100%),
+     its blur radius was still bleeding ~60px back into every tab's view
+     (About/Work/bookcase all share this panel markup) as a permanent
+     vertical shadow along the right edge. */
+  box-shadow: -30px 0 60px rgba(0, 0, 0, 0.28), -6px 0 16px rgba(0, 0, 0, 0.14);
 }
 
 .bookcase-panel__close {
@@ -841,12 +832,23 @@ body.lightbox-open .nav-search-wrap {
   max-width: none;
   margin: 0;
   padding: 64px 60px 160px;
+  background: #e7e7e4;
 }
 
 .words-page__title {
   font-size: 28px;
   font-weight: 800;
   margin: 0 0 40px;
+}
+
+/* .words-page's own padding is the only part left showing the page's
+   #e7e7e4 background (a top/left/right gutter around this) — the tab
+   content itself, index column included, stays white edge-to-edge and for
+   its whole (very tall, scrollable) height, rather than just near the top
+   of the viewport or leaving the centered .words-view--index's auto-margin
+   gutters gray. */
+.words-panel-view {
+  background: #fff;
 }
 
 .words-tabs {
@@ -858,7 +860,7 @@ body.lightbox-open .nav-search-wrap {
   gap: 0;
   margin-bottom: 40px;
   padding-top: 16px;
-  background: #fff;
+  background: #e7e7e4;
   border-bottom: 1px solid #e5e0d0;
 }
 
@@ -961,13 +963,6 @@ body.lightbox-open .nav-search-wrap {
   color: var(--ink);
 }
 
-/* Center both tabs' content the same way */
-
-#words-tab-all,
-#words-tab-search {
-  max-width: 1200px;
-  margin: 0 auto;
-}
 
 .keyword-cloud {
   /* Sticks at the same height .words-index does (see its comment for why
@@ -1147,10 +1142,17 @@ body.lightbox-open .nav-search-wrap {
 
 /* ㄱ~ㅎ fixed on the left, word list scrolls on the right */
 
+/* max-width + auto margin centers the index+list row within
+   .words-panel-view (below) — kept here, not on the panel itself, so the
+   panel's own white background can still span the page's full width
+   behind this centered content instead of showing #e7e7e4 in the
+   auto-margin gutters on each side. */
 .words-view--index {
   display: flex;
   align-items: flex-start;
   gap: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .words-index {
@@ -1201,7 +1203,7 @@ body.lightbox-open .nav-search-wrap {
 
 .words-index__link.active {
   color: var(--ink);
-  background: #d9d9d9;
+  background: #e7e7e4;
 }
 
 /* Consonants already scrolled past rise up and vanish, instead of the list
@@ -1309,7 +1311,6 @@ body.lightbox-open .nav-search-wrap {
   width: 50%;
   background: #fff;
   border-top-left-radius: 14px;
-  box-shadow: -30px 0 60px rgba(0, 0, 0, 0.28), -6px 0 16px rgba(0, 0, 0, 0.14);
   transform: translateX(100%);
   transition: transform 0.3s ease;
   z-index: 1200;
@@ -1333,6 +1334,9 @@ body.lightbox-open .nav-search-wrap {
 
 .word-panel.open {
   transform: translateX(0);
+  /* Only while open — see .bookcase-panel.open for why this moved out of
+     the base rule (same fixed slide-in panel pattern, same bug). */
+  box-shadow: -30px 0 60px rgba(0, 0, 0, 0.28), -6px 0 16px rgba(0, 0, 0, 0.14);
 }
 
 .word-panel__close {
@@ -1487,6 +1491,9 @@ body.lightbox-open .nav-search-wrap {
      a flat dark band there instead of a soft edge — drop it on mobile. */
   .word-panel {
     width: calc(100% - 32px);
+  }
+
+  .word-panel.open {
     box-shadow: none;
   }
 }
