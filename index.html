@@ -87,6 +87,12 @@
         <a class="work-instagram__link" href="https://www.instagram.com/h_r_shhh/" target="_blank" rel="noopener noreferrer">바로가기 ↗</a>
       </div>
     </div>
+    <p class="work-intro">
+      홀로월드 사이트 운영자는 책 속에서 발견한 단어를 다시 바라봅니다.<br />
+      이 단어가 왜 마음에 와닿았는지 곱씹으며, 단어에서 떠오른 의미를 새로운 문장과 레터링으로 풀어냅니다.<br />
+      책에서 탈각된 단어는 새로운 문장 속에 자리를 잡고, 나만의 이야기로 다시 태어납니다.<br />
+      여러분은 단어에서 어떤 의미를 발견했나요?
+    </p>
     <div class="works-wall" id="works-wall"></div>
   </section>
 
@@ -205,6 +211,27 @@
           instagramToggle.setAttribute("aria-expanded", "false");
         }
       });
+    })();
+  </script>
+  <script>
+    (() => {
+      /* Fades .work-intro out as the wall scrolls past it, instead of it
+         just abruptly scrolling off — opacity tracks #work's own scrollTop
+         directly (0px = fully visible, FADE_DISTANCE+ = gone), no
+         IntersectionObserver needed since this is a continuous value, not
+         a threshold crossing. */
+      const work = document.getElementById("work");
+      const workIntro = document.querySelector(".work-intro");
+      if (!work || !workIntro) return;
+      const FADE_DISTANCE = 160;
+      work.addEventListener(
+        "scroll",
+        () => {
+          const opacity = Math.max(0, 1 - work.scrollTop / FADE_DISTANCE);
+          workIntro.style.opacity = opacity;
+        },
+        { passive: true }
+      );
     })();
   </script>
   <script src="js/works-data.js"></script>

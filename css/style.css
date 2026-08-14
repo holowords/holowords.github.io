@@ -496,6 +496,20 @@ body.lightbox-open .nav-search-wrap {
   text-align: center;
 }
 
+.work-intro {
+  max-width: 640px;
+  margin: -24px 0 40px;
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 14px;
+  line-height: 1.8;
+  color: #555;
+  text-align: left;
+  /* Opacity is driven per scroll-frame by JS (see index.html) — the
+     transition just smooths out the steps between those updates instead
+     of the fade looking stepped/jittery. */
+  transition: opacity 0.1s linear;
+}
+
 .works-wall {
   display: flex;
   flex-wrap: wrap;
@@ -841,6 +855,15 @@ body.lightbox-open .nav-search-wrap {
   margin: 0 0 40px;
 }
 
+.words-page__intro {
+  max-width: 640px;
+  margin: 0 0 32px;
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 14px;
+  line-height: 1.8;
+  color: #555;
+}
+
 /* .words-page's own padding is the only part left showing the page's
    #e7e7e4 background (a top/left/right gutter around this) — the tab
    content itself, index column included, stays white edge-to-edge and for
@@ -948,6 +971,7 @@ body.lightbox-open .nav-search-wrap {
   justify-content: space-between;
   gap: 16px;
   padding-bottom: 20px;
+  padding-left: 10px;
   font-size: 14px;
   color: #555;
 }
