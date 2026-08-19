@@ -38,14 +38,35 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     if (homeLink) homeLink.classList.toggle("active", id === "about" && aboutSubId !== "nav-about");
     if (aboutLink) aboutLink.classList.toggle("active", id === "about" && aboutSubId === "nav-about");
+    // Mobile-only (see .nav-search-wrap's media query): the search bar only
+    // makes sense next to holo words/About, Words, Work — bookcase has its
+    // own dark full-bleed layout with no room for it.
+    document.body.classList.toggle("mobile-search-hidden", id === "bookcase");
   }
 
-  function panelFromHash() {
-    const id = location.hash.slice(1);
-    return panelIds.includes(id) ? id : "about";
+  /* "About" links to #about-intro (not #about) specifically so that
+     intent survives a real page load — clicking it from words.html or
+     book.html is a full navigation to index.html#about-intro, not a JS
+     click handler, so whatever showPanel(panelFromHash()) decides on load
+     is the only thing that determines which of "holo words" / "About"
+     ends up looking pressed. Without a distinct hash, that click and a
+     plain #about landing (holo words, or any bare link into the page)
+     would be indistinguishable, and always fell back to "holo words". */
+  function routeFromHash() {
+    const hash = location.hash.slice(1);
+    if (hash === "about-intro") return { panel: "about", aboutSub: "nav-about" };
+    if (panelIds.includes(hash)) return { panel: hash, aboutSub: "nav-holo-words" };
+    return { panel: "about", aboutSub: "nav-holo-words" };
   }
 
-  showPanel(panelFromHash());
+  function showRoute(route) {
+    showPanel(route.panel, route.aboutSub);
+    if (route.panel === "about" && aboutPanel && aboutIntro) {
+      aboutPanel.scrollTop = route.aboutSub === "nav-about" ? aboutIntro.offsetTop : 0;
+    }
+  }
+
+  showRoute(routeFromHash());
 
   navLinks.forEach((link) => {
     const id = link.dataset.nav;
@@ -62,7 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  window.addEventListener("popstate", () => showPanel(panelFromHash()));
+  window.addEventListener("popstate", () => showRoute(routeFromHash()));
 
   /* Always jumps back to the hero at the top of #about's own internal
      scroll — unlike "About" (below), which jumps to .about-intro instead,
@@ -82,11 +103,13 @@ document.addEventListener("DOMContentLoaded", () => {
      of the hero — that's what "holo words" is for (see above). offsetTop
      is relative to #about itself (its position:relative makes it the
      offsetParent for direct children like .about-intro), so this is
-     exactly the scroll distance from the hero down to it. */
+     exactly the scroll distance from the hero down to it. Pushes
+     #about-intro, not #about — see routeFromHash for why that distinction
+     has to survive a real page navigation. */
   if (aboutLink && aboutPanel && aboutIntro) {
     aboutLink.addEventListener("click", (e) => {
       e.preventDefault();
-      if (location.hash !== "#about") history.pushState(null, "", "#about");
+      if (location.hash !== "#about-intro") history.pushState(null, "", "#about-intro");
       showPanel("about", "nav-about");
       aboutPanel.scrollTop = aboutIntro.offsetTop;
       aboutLink.blur();

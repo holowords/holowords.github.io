@@ -1,0 +1,42 @@
+name: Update bookcase-data.js
+
+# Add a book to the "책장" Notion database and this picks it up on its own
+# schedule — regenerating js/bookcase-data.js and downloading its cover
+# into image/bookcase/ (see scripts/generate_bookcase_data.py for the rest
+# of the flow). Runs on a schedule rather than on push, since a Notion
+# edit doesn't push a commit here for anything to trigger on.
+on:
+  schedule:
+    - cron: "0 21 * * *" # 06:00 KST daily
+  workflow_dispatch: {} # "Run workflow" button, for right after adding a book
+
+permissions:
+  contents: write
+
+jobs:
+  update-bookcase-data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install dependencies
+        run: pip install pillow numpy
+
+      - name: Regenerate js/bookcase-data.js
+        run: python3 scripts/generate_bookcase_data.py
+
+      - name: Commit if changed
+        run: |
+          if git diff --quiet -- js/bookcase-data.js image/bookcase/ && [ -z "$(git status --porcelain image/bookcase/)" ]; then
+            echo "no changes"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add js/bookcase-data.js image/bookcase/
+          git commit -m "Update bookcase-data.js from Notion"
+          git push

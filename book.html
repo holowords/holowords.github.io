@@ -13,13 +13,21 @@
   <nav class="site-nav">
     <div class="site-nav__links">
       <a href="index.html#about" data-nav="about" id="nav-holo-words">holo words</a>
-      <a href="index.html#about" data-nav="about" id="nav-about">About</a>
-      <a href="words.html" data-nav="words">Words</a>
-      <a href="index.html#work" data-nav="work">Work</a>
-      <a href="book.html" data-nav="book">Book</a>
+      <a href="index.html#about-intro" data-nav="about" id="nav-about">about</a>
+      <a href="words.html" data-nav="words">words</a>
+      <a href="index.html#work" data-nav="work">work</a>
+      <a href="book.html" data-nav="book">book</a>
       <a href="index.html#bookcase" data-nav="bookcase">book case</a>
     </div>
   </nav>
+
+  <div class="nav-search-wrap">
+    <form class="nav-search" id="search-box" autocomplete="off">
+      <input type="text" id="search-input" class="nav-search__input" placeholder="당신의 단어를 입력해 보세요." />
+      <button type="submit" class="nav-search__button">검색</button>
+    </form>
+    <span class="nav-search__count" id="word-count"></span>
+  </div>
 
   <div class="book-page">
     <button class="book-cover-launch" id="book-cover-launch" type="button">
@@ -60,5 +68,27 @@
   <script src="js/book-data.js"></script>
   <script src="js/book.js"></script>
   <script src="js/nav.js"></script>
+  <script src="js/drive-config.js"></script>
+  <script src="js/drive-words.js"></script>
+  <script>
+    (async () => {
+      const searchForm = document.getElementById("search-box");
+      const searchInput = document.getElementById("search-input");
+      const wordCount = document.getElementById("word-count");
+
+      searchForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const q = searchInput.value.trim();
+        location.href = q ? `words.html?q=${encodeURIComponent(q)}` : "words.html";
+      });
+
+      try {
+        const words = await fetchDriveWords();
+        wordCount.textContent = `총 ${words.length}개`;
+      } catch (err) {
+        console.error(err);
+      }
+    })();
+  </script>
 </body>
 </html>

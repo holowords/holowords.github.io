@@ -47,6 +47,25 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
   shapeTabs();
 
+  /* Info popup: click the "i" to drop the description down as a card
+     (see .page-info__panel), click elsewhere to close it — same pattern
+     as the Work page's info popup (see index.html). */
+  const info = document.getElementById("words-info");
+  const infoToggle = document.getElementById("words-intro-toggle");
+  if (info && infoToggle) {
+    infoToggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const open = info.classList.toggle("open");
+      infoToggle.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    document.addEventListener("click", (e) => {
+      if (info.classList.contains("open") && !info.contains(e.target)) {
+        info.classList.remove("open");
+        infoToggle.setAttribute("aria-expanded", "false");
+      }
+    });
+  }
+
   const overlay = document.getElementById("word-panel-overlay");
   const panel = document.getElementById("word-panel");
   const panelBody = document.getElementById("word-panel-body");

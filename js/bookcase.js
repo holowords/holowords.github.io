@@ -6,6 +6,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const panel = document.getElementById("bookcase-panel");
   const panelBody = document.getElementById("bookcase-panel-body");
   const closeBtn = document.getElementById("bookcase-panel-close");
+  const zoomInBtn = document.getElementById("bookcase-zoom-in");
+  const zoomOutBtn = document.getElementById("bookcase-zoom-out");
 
   if (!shelf || typeof BOOKCASE_ITEMS === "undefined") return;
 
@@ -44,6 +46,10 @@ document.addEventListener("DOMContentLoaded", () => {
     "소설": "#d9d9d9",
   };
   const DEFAULT_SPINE_COLOR = "#cfcac0";
+
+  /* Tracked so the zoom controls below can rewrite width/height on the fly
+     without re-rendering the spines from scratch. */
+  const spineEntries = [];
 
   BOOKCASE_ITEMS.forEach((book, i) => {
     const spine = document.createElement("button");
@@ -87,12 +93,97 @@ document.addEventListener("DOMContentLoaded", () => {
 
     spine.addEventListener("click", () => openPanel(book));
     shelf.appendChild(spine);
+
+    spineEntries.push({ el: spine, book, baseWidth: width, baseHeightStyle: `${heightJitter.toFixed(1)}%` });
   });
 
-  function formatDateRange(book) {
-    if (!book.startDate) return "";
-    if (!book.endDate || book.endDate === book.startDate) return book.startDate;
-    return `${book.startDate} → ${book.endDate}`;
+  /* Compact-mode spine width is picked so a full row lands around 70 books
+     on desktop / 30 on a narrow viewport (recomputed on resize while
+     compact, since that target is a per-viewport count, not a fixed px). */
+  function computeCompactScale() {
+    const targetPerRow = window.innerWidth <= 640 ? 30 : 70;
+    const gap = 2;
+    const avgBaseWidth = spineEntries.reduce((sum, e) => sum + e.baseWidth, 0) / spineEntries.length;
+    const containerWidth = shelf.clientWidth || window.innerWidth;
+    const raw = (containerWidth / targetPerRow - gap) / avgBaseWidth;
+    return Math.max(0.1, Math.min(0.6, raw));
+  }
+
+  function applyCompact() {
+    const scale = computeCompactScale();
+    spineEntries.forEach((entry) => {
+      const w = Math.max(4, entry.baseWidth * scale);
+      entry.el.style.width = `${w.toFixed(1)}px`;
+      entry.el.style.height = `${(w * 1.3).toFixed(1)}px`;
+    });
+  }
+
+  function applyDefault() {
+    spineEntries.forEach((entry) => {
+      entry.el.style.width = `${entry.baseWidth.toFixed(0)}px`;
+      entry.el.style.height = entry.baseHeightStyle;
+    });
+  }
+
+  let compact = false;
+  let resizeTimer = null;
+
+  function setCompact(next) {
+    compact = next;
+    shelf.classList.toggle("bookcase-shelf--compact", compact);
+    if (compact) applyCompact();
+    else applyDefault();
+    if (zoomInBtn) zoomInBtn.disabled = !compact;
+    if (zoomOutBtn) zoomOutBtn.disabled = compact;
+  }
+
+  if (zoomInBtn && zoomOutBtn) {
+    zoomInBtn.addEventListener("click", () => setCompact(false));
+    zoomOutBtn.addEventListener("click", () => setCompact(true));
+  }
+
+  window.addEventListener("resize", () => {
+    if (!compact) return;
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(applyCompact, 150);
+  });
+
+  /* Search doesn't replace the shelf with a results list — it dims
+     everything that doesn't match and outlines what does, so hits stay in
+     their normal spot among the rest of the collection. */
+  const searchForm = document.getElementById("bookcase-search-form");
+  const searchInput = document.getElementById("bookcase-search-input");
+  const countEl = document.getElementById("bookcase-count");
+
+  if (countEl) countEl.textContent = `총 ${BOOKCASE_ITEMS.length}권`;
+
+  function applySearch(query) {
+    const q = query.trim().toLowerCase();
+    let firstMatch = null;
+    spineEntries.forEach((entry) => {
+      const isMatch = q.length > 0 && entry.book.title.toLowerCase().includes(q);
+      entry.el.classList.toggle("bookcase-spine--match", isMatch);
+      entry.el.classList.toggle("bookcase-spine--dim", q.length > 0 && !isMatch);
+      if (isMatch && !firstMatch) firstMatch = entry.el;
+    });
+    return firstMatch;
+  }
+
+  function scrollToMatch(entryEl) {
+    if (entryEl) entryEl.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+  }
+
+  if (searchForm && searchInput) {
+    searchInput.addEventListener("input", () => scrollToMatch(applySearch(searchInput.value)));
+    searchForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      scrollToMatch(applySearch(searchInput.value));
+    });
+  }
+
+  function getYear(book) {
+    const date = book.startDate || book.endDate;
+    return date ? date.slice(0, 4) : null;
   }
 
   function openPanel(book) {
@@ -110,10 +201,12 @@ document.addEventListener("DOMContentLoaded", () => {
     title.textContent = book.title;
     panelBody.appendChild(title);
 
-    const byline = document.createElement("p");
-    byline.className = "bookcase-panel__byline";
-    byline.textContent = [book.author, formatDateRange(book)].filter(Boolean).join(" · ");
-    panelBody.appendChild(byline);
+    if (book.author) {
+      const byline = document.createElement("p");
+      byline.className = "bookcase-panel__byline";
+      byline.textContent = book.author;
+      panelBody.appendChild(byline);
+    }
 
     const tags = document.createElement("div");
     tags.className = "bookcase-panel__tags";
@@ -134,6 +227,32 @@ document.addEventListener("DOMContentLoaded", () => {
       memo.textContent = "아직 남긴 메모가 없어요.";
     }
     panelBody.appendChild(memo);
+
+    /* Sentences copied out of the book itself (Notion's "문장 수집" toggle
+       — see scripts/generate_bookcase_data.py), kept visually apart from
+       the memo above: smaller and italic, like a handwritten margin note
+       next to the reflection rather than more of it. */
+    if (book.quotes && book.quotes.length) {
+      const quotes = document.createElement("div");
+      quotes.className = "bookcase-panel__quotes";
+      book.quotes.forEach((line) => {
+        const q = document.createElement("p");
+        q.className = "bookcase-panel__quote";
+        q.textContent = line;
+        quotes.appendChild(q);
+      });
+      panelBody.appendChild(quotes);
+    }
+
+    const year = getYear(book);
+    if (year) {
+      const yearEl = document.createElement("p");
+      yearEl.className = "bookcase-panel__year";
+      const yearTag = document.createElement("span");
+      yearTag.textContent = year;
+      yearEl.appendChild(yearTag);
+      panelBody.appendChild(yearEl);
+    }
 
     panel.classList.add("open");
     overlay.classList.add("open");

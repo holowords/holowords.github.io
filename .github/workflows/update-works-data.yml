@@ -1,0 +1,36 @@
+name: Update works-data.js
+
+# Drop a new "메모지_[제목].ext" file into image/works/, push it, and this
+# regenerates js/works-data.js to match — the only manual step left is
+# adding the image itself (see scripts/generate_works_data.py for the rest
+# of the flow, including how "책에서 보기" finds its Words entry).
+on:
+  push:
+    branches: [main]
+    paths:
+      - "image/works/**"
+      - "scripts/generate_works_data.py"
+
+permissions:
+  contents: write
+
+jobs:
+  update-works-data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Regenerate js/works-data.js
+        run: python3 scripts/generate_works_data.py
+
+      - name: Commit if changed
+        run: |
+          if git diff --quiet -- js/works-data.js; then
+            echo "no changes"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add js/works-data.js
+          git commit -m "Update works-data.js from image/works/"
+          git push

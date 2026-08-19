@@ -13,10 +13,10 @@
   <nav class="site-nav">
     <div class="site-nav__links">
       <a href="index.html#about" data-nav="about" id="nav-holo-words">holo words</a>
-      <a href="index.html#about" data-nav="about" id="nav-about">About</a>
-      <a href="words.html" data-nav="words">Words</a>
-      <a href="index.html#work" data-nav="work">Work</a>
-      <a href="book.html" data-nav="book">Book</a>
+      <a href="index.html#about-intro" data-nav="about" id="nav-about">about</a>
+      <a href="words.html" data-nav="words">words</a>
+      <a href="index.html#work" data-nav="work">work</a>
+      <a href="book.html" data-nav="book">book</a>
       <a href="index.html#bookcase" data-nav="bookcase">book case</a>
     </div>
   </nav>
@@ -30,11 +30,27 @@
   </div>
 
   <main class="words-page" id="words-page">
-    <p class="words-page__intro">
-      어느 계절, 출근길에 전자책을 읽다가 마음에 와닿은 문장들입니다.<br />
-      다정한 말 한마디에 마음이 녹기도 하고, 찌르듯 아픈 말에 속이 상하기도 합니다.<br />
-      그 모든 말들이 위로가 되어 삶을 지탱해줍니다. 보기만 해도 힘이 되는 말이 있으신가요?
-    </p>
+    <div class="page-info" id="words-info">
+      <button
+        class="page-info__toggle"
+        id="words-intro-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="words-info-panel"
+        aria-label="설명 보기"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9" />
+          <line x1="12" y1="11" x2="12" y2="16.5" />
+          <circle cx="12" cy="7.5" r="1" fill="currentColor" stroke="none" />
+        </svg>
+      </button>
+      <p class="page-info__panel" id="words-info-panel">
+        어느 계절, 출근길에 전자책을 읽다가 마음에 와닿은 문장들입니다.<br />
+        다정한 말 한마디에 마음이 녹기도 하고, 찌르듯 아픈 말에 속이 상하기도 합니다.<br />
+        그 모든 말들이 위로가 되어 삶을 지탱해줍니다. 보기만 해도 힘이 되는 말이 있으신가요?
+      </p>
+    </div>
     <div class="words-tabs" id="words-tabs">
       <button class="words-tab active" type="button" data-tab="all">전체단어</button>
       <button class="words-tab" type="button" data-tab="search">키워드로 찾기</button>

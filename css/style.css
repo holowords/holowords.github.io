@@ -402,11 +402,21 @@ body.lightbox-open .nav-search-wrap {
    clicking it drops down a mini preview card that links out to the real
    profile (no embed — Instagram's API doesn't allow one without
    server-side auth) rather than jumping straight there. */
-.work-instagram {
+/* Info toggle and Instagram toggle share one row, top-right of the wall —
+   the row itself carries the positioning that each icon used to have on
+   its own, so both just sit in it as normal flex children. */
+.work-icons {
   position: absolute;
   top: 24px;
   right: 40px;
   z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.work-instagram {
+  position: relative;
 }
 
 .work-instagram__icon {
@@ -483,6 +493,70 @@ body.lightbox-open .nav-search-wrap {
   border-bottom: 1px solid #1a1a1a;
 }
 
+/* Info popup — the page-intro description, as a dropdown card off the "i"
+   icon instead of expanding inline (see .work-instagram just above for the
+   identical open/close pattern this mirrors). Shared by Words and Work
+   (see js/words.js and index.html for the click handlers). */
+.page-info {
+  position: relative;
+  /* Above .words-tabs's sticky z-index:10 — without this the popup panel
+     was painting underneath the tab bar on the Words page, hiding all but
+     whatever poked out past its bottom edge. */
+  z-index: 20;
+}
+
+.page-info__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #1a1a1a;
+  cursor: pointer;
+}
+
+.page-info__toggle svg {
+  width: 19px;
+  height: 19px;
+}
+
+.page-info.open .page-info__toggle {
+  color: #2c90f4;
+}
+
+.page-info__panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 280px;
+  margin: 0;
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #444;
+  text-align: left;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+
+.page-info.open .page-info__panel {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
 #work.active {
   display: block;
 }
@@ -494,20 +568,6 @@ body.lightbox-open .nav-search-wrap {
   color: var(--ink);
   opacity: 0.35;
   text-align: center;
-}
-
-.work-intro {
-  max-width: 640px;
-  margin: -24px 0 40px;
-  font-family: "Gowun Dodum", sans-serif;
-  font-size: 14px;
-  line-height: 1.8;
-  color: #555;
-  text-align: left;
-  /* Opacity is driven per scroll-frame by JS (see index.html) — the
-     transition just smooths out the steps between those updates instead
-     of the fade looking stepped/jittery. */
-  transition: opacity 0.1s linear;
 }
 
 .works-wall {
@@ -574,7 +634,7 @@ body.lightbox-open .nav-search-wrap {
     padding: 60px 20px 80px;
   }
 
-  .work-instagram {
+  .work-icons {
     top: 16px;
     right: 20px;
   }
@@ -668,6 +728,7 @@ body.lightbox-open .nav-search-wrap {
 /* ---------------------------------------------------------------------- */
 
 #bookcase {
+  position: relative;
   height: calc(100vh - var(--header-offset));
   overflow: hidden;
   outline: none;
@@ -678,6 +739,120 @@ body.lightbox-open .nav-search-wrap {
 
 #bookcase.active {
   display: block;
+}
+
+/* +/- zoom controls: "+" only ever restores the default shelf size (it's
+   already the max, see .bookcase-zoom__btn:disabled), "-" packs the shelf
+   into a dense wrapping grid instead (see .bookcase-shelf--compact) so the
+   whole collection can be scanned at a glance rather than scrolled through
+   one row at a time. */
+.bookcase-zoom {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  z-index: 5;
+  display: flex;
+  gap: 8px;
+}
+
+.bookcase-zoom__btn {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+.bookcase-zoom__btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.bookcase-zoom__btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+/* Left-side counterpart to .bookcase-zoom — searches by title (see
+   js/bookcase.js), dimming non-matching spines on the shelf below rather
+   than replacing it with a separate results list. */
+.bookcase-search {
+  position: absolute;
+  top: 20px;
+  left: 24px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bookcase-search__form {
+  display: flex;
+  align-items: stretch;
+  height: 34px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.bookcase-search__input {
+  width: 180px;
+  min-width: 0;
+  border: none;
+  background: none;
+  padding: 0 12px;
+  font: inherit;
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 12px;
+  color: #fff;
+  outline: none;
+}
+
+.bookcase-search__input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.bookcase-search__button {
+  flex-shrink: 0;
+  border: none;
+  border-left: 1px solid rgba(255, 255, 255, 0.4);
+  background: none;
+  padding: 0 14px;
+  font: inherit;
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+}
+
+.bookcase-search__button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.bookcase-search__count {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Matching a search: everything else fades back so the hits read as
+   picked out of the shelf instead of just outlined among the rest. */
+.bookcase-spine--dim {
+  opacity: 0.2;
+}
+
+.bookcase-spine--match {
+  box-shadow: 0 0 0 2px #fff, 1px 0 0 rgba(0, 0, 0, 0.25) inset, -1px 0 0 rgba(255, 255, 255, 0.06) inset;
 }
 
 .bookcase-shelf {
@@ -692,6 +867,38 @@ body.lightbox-open .nav-search-wrap {
      on, sitting a fixed distance up from the bottom so there's room for
      the shadow beneath it. */
   box-shadow: inset 0 -120px 0 -119px #3a362f;
+}
+
+/* Zoomed-out state (see js/bookcase.js's setCompact): spines shrink and
+   wrap into rows instead of scrolling sideways, so the shelf reads as a
+   dense grid — width is picked per-viewport to land around 80 books per
+   row on desktop / 40 on mobile. */
+.bookcase-shelf--compact {
+  height: auto;
+  max-height: 100%;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  align-content: flex-start;
+  gap: 2px;
+  padding: 64px 24px 24px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  box-shadow: none;
+}
+
+.bookcase-shelf--compact .bookcase-spine {
+  min-height: 0;
+  border-radius: 1px;
+  padding: 0;
+}
+
+.bookcase-shelf--compact .bookcase-spine:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+}
+
+.bookcase-shelf--compact .bookcase-spine__title {
+  display: none;
 }
 
 .bookcase-spine {
@@ -838,6 +1045,41 @@ body.lightbox-open .nav-search-wrap {
   text-align: center;
 }
 
+/* Sentences collected from the book itself, not the memo's own reflection
+   — set apart with a slightly smaller, italic treatment (see js/bookcase.js)
+   so they read as quoted material rather than more of the memo. */
+.bookcase-panel__quotes {
+  margin: 20px 0 0;
+  padding-left: 14px;
+  border-left: 2px solid #eee;
+}
+
+.bookcase-panel__quote {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-style: italic;
+  line-height: 1.7;
+  color: #666;
+}
+
+.bookcase-panel__quote:last-child {
+  margin-bottom: 0;
+}
+
+.bookcase-panel__year {
+  margin: 24px 0 0;
+  text-align: right;
+}
+
+.bookcase-panel__year span {
+  display: inline-block;
+  font-size: 13px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #f1efe9;
+  color: #888;
+}
+
 /* ---------------------------------------------------------------------- */
 /* Words page                                                             */
 /* ---------------------------------------------------------------------- */
@@ -847,21 +1089,22 @@ body.lightbox-open .nav-search-wrap {
   margin: 0;
   padding: 64px 60px 160px;
   background: #e7e7e4;
+  position: relative;
+}
+
+/* Top-right, same line as Work's icon row (see .work-icons) — pulled in a
+   bit further than Work's own 40px since Words has no second icon next to
+   it to visually anchor against. */
+#words-info {
+  position: absolute;
+  top: 24px;
+  right: 70px;
 }
 
 .words-page__title {
   font-size: 28px;
   font-weight: 800;
   margin: 0 0 40px;
-}
-
-.words-page__intro {
-  max-width: 640px;
-  margin: 0 0 32px;
-  font-family: "Gowun Dodum", sans-serif;
-  font-size: 14px;
-  line-height: 1.8;
-  color: #555;
 }
 
 /* .words-page's own padding is the only part left showing the page's
@@ -1139,8 +1382,22 @@ body.lightbox-open .nav-search-wrap {
     padding-right: 20px;
   }
 
+  #words-info {
+    top: 16px;
+    right: 36px;
+  }
+
   .words-view--index {
     gap: 16px;
+  }
+
+  /* The ㄱ~ㅎ index column (48px + gap) already reads as a wide left gutter,
+     but the right edge had only .words-page's flat 20px padding to match it
+     — thumbnails/keyword content sat almost flush against the screen edge.
+     This pulls the content in a bit further so the white margin on the
+     right reads closer in weight to the left side. */
+  .words-index-content {
+    padding-right: 16px;
   }
 
   /* Keyword chips: one scrollable row (~4 visible at a time) instead of
@@ -1468,13 +1725,49 @@ body.lightbox-open .nav-search-wrap {
      matches --mobile-topbar-height below — otherwise it can grow taller
      than the reserved space and overlap the page content under it. */
   body:not([data-page="work-detail"]):not([data-page="book"]) {
-    --mobile-topbar-height: 76px;
+    --mobile-topbar-height: 54px;
     --header-offset: calc(var(--nav-height) + var(--mobile-topbar-height));
     padding-top: var(--header-offset);
   }
 
+  /* bookcase tab: no search bar, so no reserved space for it either —
+     otherwise its dark panel would start with an empty white gap under
+     the nav where the bar used to be. */
+  body:not([data-page="work-detail"]):not([data-page="book"]).mobile-search-hidden {
+    --mobile-topbar-height: 0px;
+  }
+
+  body.mobile-search-hidden .nav-search-wrap {
+    display: none;
+  }
+
+  .site-nav {
+    padding: 0 16px;
+  }
+
   .site-nav__links {
-    gap: 24px;
+    gap: 14px;
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .site-nav__links::-webkit-scrollbar {
+    display: none;
+  }
+
+  .site-nav a {
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  /* "About" duplicates where "holo words" already lands (the about panel,
+     just scrolled to its top instead of the intro) — dropped here so the
+     other five items (including book case, previously pushed off the edge
+     entirely) all fit without wrapping or scrolling on a standard phone
+     width. */
+  #nav-about {
+    display: none;
   }
 
   .nav-search-wrap {
@@ -1482,31 +1775,45 @@ body.lightbox-open .nav-search-wrap {
     top: var(--nav-height);
     left: 0;
     right: 0;
-    height: var(--mobile-topbar-height, 76px);
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: center;
-    gap: 6px;
-    padding: 8px 16px;
+    height: var(--mobile-topbar-height, 54px);
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 0 16px;
     background: #fff;
     border-bottom: 1px solid #e5e0d0;
   }
 
+  /* Narrower than a full-width bar — the count sits right after it instead
+     of wrapping to its own line below. */
   .nav-search {
-    width: 100%;
+    width: auto;
+    flex: 1;
+    max-width: 220px;
     height: 34px;
-    flex-shrink: 0;
+    flex-shrink: 1;
   }
 
   .nav-search__input {
     flex: 1;
     width: auto;
+    min-width: 0;
   }
 
   .nav-search__count {
     flex-shrink: 0;
     line-height: 16px;
-    text-align: center;
+    text-align: right;
+  }
+
+  /* Book's mobile page-flip viewer already fills the space right under the
+     nav (see body:not(...)'s --mobile-topbar-height exclusion for
+     data-page="book") — showing the bar here on a phone would float over
+     it with no reserved room. Desktop is unaffected: this is the only
+     place the bar is hidden for this page. */
+  body[data-page="book"] .nav-search-wrap {
+    display: none;
   }
 
   /* Word detail panel covers nearly the whole screen on mobile, leaving just
@@ -1854,12 +2161,18 @@ body[data-page="book"] {
   }
 
   .book-index {
-    grid-template-columns: repeat(8, 1fr);
+    grid-template-columns: repeat(10, 1fr);
+    gap: 0;
     font-size: 10px;
-    /* 4 rows of 28px links + the grid's 1px row-gap between them, then
-       clipped — the chevron below toggles the rest. */
-    max-height: 115px;
+    /* 4 rows of 24px links, then clipped — the chevron below toggles the
+       rest (10 columns × 8 rows = all 80 once expanded). */
+    max-height: 96px;
     overflow: hidden;
+  }
+
+  .book-index__link {
+    width: 24px;
+    height: 24px;
   }
 
   .book-index.expanded {
