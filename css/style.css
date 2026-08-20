@@ -239,6 +239,10 @@ body.lightbox-open .nav-search-wrap {
   font-size: clamp(16px, 2.2vw, 22px);
   color: #000;
   margin: 0;
+  /* Mobile types a literal "\n" into this element (see index.html) to
+     split it onto two lines — harmless on desktop, which never contains
+     one. */
+  white-space: pre-line;
 }
 
 .about-intro__welcome.typing::after {
@@ -254,6 +258,15 @@ body.lightbox-open .nav-search-wrap {
   line-height: 1.8;
   max-width: 640px;
   margin: 0;
+}
+
+/* Mobile only — desktop keeps this run-on as one paragraph (see the plain
+   span in index.html, inline there by default). */
+@media (max-width: 640px) {
+  .about-intro__body-line2 {
+    display: block;
+    margin-top: 12px;
+  }
 }
 
 .about-intro__footer {
@@ -843,6 +856,26 @@ body.lightbox-open .nav-search-wrap {
   color: rgba(255, 255, 255, 0.6);
   white-space: nowrap;
   flex-shrink: 0;
+}
+
+/* At 180px the search input alone ran into .bookcase-zoom's buttons on a
+   phone-width shelf — narrower here so the two top-pinned controls have
+   room to sit side by side without overlapping. */
+@media (max-width: 640px) {
+  .bookcase-search {
+    top: 16px;
+    left: 16px;
+    gap: 8px;
+  }
+
+  .bookcase-search__input {
+    width: 120px;
+  }
+
+  .bookcase-zoom {
+    top: 16px;
+    right: 16px;
+  }
 }
 
 /* Matching a search: everything else fades back so the hits read as
@@ -1741,8 +1774,13 @@ body.lightbox-open .nav-search-wrap {
     display: none;
   }
 
+  /* The search bar sits flush under the nav here (see .nav-search-wrap's
+     own top offset) with the same background — a border on the nav's own
+     bottom edge just read as a seam between the two, so only the search
+     bar's border-bottom below closes off the combined strip. */
   .site-nav {
     padding: 0 16px;
+    border-bottom: none;
   }
 
   .site-nav__links {
@@ -1778,21 +1816,23 @@ body.lightbox-open .nav-search-wrap {
     height: var(--mobile-topbar-height, 54px);
     flex-direction: row;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: center;
     gap: 10px;
     padding: 0 16px;
-    background: #fff;
+    /* Same material as .site-nav (see there), so the two bars read as one
+       continuous strip rather than two different-toned ones stacked. */
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(6px);
     border-bottom: 1px solid #e5e0d0;
   }
 
-  /* Narrower than a full-width bar — the count sits right after it instead
-     of wrapping to its own line below. */
+  /* Narrower than a full-width bar, and no longer flex-grow-ing to fill the
+     row — the whole search+count group sizes to its own content so
+     justify-content:center on the wrap actually centers it as a unit. */
   .nav-search {
     width: auto;
-    flex: 1;
-    max-width: 220px;
+    flex: 0 1 220px;
     height: 34px;
-    flex-shrink: 1;
   }
 
   .nav-search__input {

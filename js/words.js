@@ -440,7 +440,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     panelBody.innerHTML = "";
     const img = document.createElement("img");
     img.className = "word-panel__image";
-    img.src = word.image;
+    img.src = word.imageLarge || word.image;
     img.alt = word.title;
     img.loading = "lazy";
     panelBody.appendChild(img);

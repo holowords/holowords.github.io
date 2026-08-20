@@ -44,7 +44,7 @@
       <div class="select-highlight select-highlight--welcome">
         <p class="about-intro__welcome" id="about-welcome">안녕하세요. 홀로둥이의 단어에 오신 걸 환영합니다.</p>
       </div>
-      <p class="about-intro__body">이곳은 <span class="text-highlight">책에서 수집한 단어들</span>을 모아둔 공간입니다. 살아가며 느낀 감정과 가치관,<br />그리고 세상을 견디게 하는 힘이 된 단어들을 차곡차곡 적어놓았습니다.</p>
+      <p class="about-intro__body">이곳은 <span class="text-highlight">책에서 수집한 단어들</span>을 모아둔 공간입니다. <span class="about-intro__body-line2">살아가며 느낀 감정과 가치관,<br />그리고 세상을 견디게 하는 힘이 된 단어들을 차곡차곡 적어놓았습니다.</span></p>
       <p class="about-intro__footer" id="about-footer">세상에 발 붙이고 살아가는 모든 홀로둥이를 응원합니다.</p>
       <div class="about-glossary" id="about-glossary">
         <div class="about-glossary__panel" id="about-glossary-panel">
@@ -129,7 +129,7 @@
           type="text"
           id="bookcase-search-input"
           class="bookcase-search__input"
-          placeholder="읽은 책"
+          placeholder="기록한 책"
         />
         <button type="submit" class="bookcase-search__button">검색</button>
       </form>
@@ -210,7 +210,14 @@
       runHeroTyping();
 
       const aboutWelcome = document.getElementById("about-welcome");
-      loopTypeText(aboutWelcome, aboutWelcome.textContent, 90, 1800);
+      // Mobile splits this onto two lines (see .about-intro__welcome's
+      // white-space:pre-line) — typeText just appends characters, so a
+      // literal "\n" in the source string types straight through as a line
+      // break with no extra markup needed.
+      const welcomeText = window.matchMedia("(max-width: 640px)").matches
+        ? "안녕하세요.\n홀로둥이의 단어에 오신 걸 환영합니다."
+        : aboutWelcome.textContent;
+      loopTypeText(aboutWelcome, welcomeText, 90, 1800);
 
 
       // Scrolling within the About tab already reveals the intro page below
