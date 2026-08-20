@@ -1758,7 +1758,7 @@ body.lightbox-open .nav-search-wrap {
      matches --mobile-topbar-height below — otherwise it can grow taller
      than the reserved space and overlap the page content under it. */
   body:not([data-page="work-detail"]):not([data-page="book"]) {
-    --mobile-topbar-height: 54px;
+    --mobile-topbar-height: 50px;
     --header-offset: calc(var(--nav-height) + var(--mobile-topbar-height));
     padding-top: var(--header-offset);
   }
@@ -1813,12 +1813,15 @@ body.lightbox-open .nav-search-wrap {
     top: var(--nav-height);
     left: 0;
     right: 0;
-    height: var(--mobile-topbar-height, 54px);
+    height: var(--mobile-topbar-height, 50px);
     flex-direction: row;
-    align-items: center;
+    /* Top-aligned with a small top pad instead of centered — the extra
+       height below (see --mobile-topbar-height) all becomes bottom
+       breathing room instead of splitting evenly. */
+    align-items: flex-start;
     justify-content: center;
     gap: 10px;
-    padding: 0 16px;
+    padding: 5px 16px 0;
     /* Same material as .site-nav (see there), so the two bars read as one
        continuous strip rather than two different-toned ones stacked. */
     background: rgba(255, 255, 255, 0.92);
@@ -1826,12 +1829,13 @@ body.lightbox-open .nav-search-wrap {
     border-bottom: 1px solid #e5e0d0;
   }
 
-  /* Narrower than a full-width bar, and no longer flex-grow-ing to fill the
-     row — the whole search+count group sizes to its own content so
-     justify-content:center on the wrap actually centers it as a unit. */
+  /* Fills whatever width is left after the count (like a mobile browser's
+     own address bar — it grows/shrinks with the viewport rather than
+     sitting at one fixed width). */
   .nav-search {
     width: auto;
-    flex: 0 1 220px;
+    flex: 1 1 auto;
+    min-width: 0;
     height: 34px;
   }
 
