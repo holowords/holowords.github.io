@@ -1,0 +1,602 @@
+/* ---------------------------------------------------------------------- */
+/* Words page                                                             */
+/* ---------------------------------------------------------------------- */
+
+.words-page {
+  max-width: none;
+  margin: 0;
+  padding: 64px 60px 160px;
+  background: #e7e7e4;
+  position: relative;
+}
+
+/* Top-right, same line as Work's icon row (see .work-icons) — pulled in a
+   bit further than Work's own 40px since Words has no second icon next to
+   it to visually anchor against. */
+#words-info {
+  position: absolute;
+  top: 24px;
+  right: 70px;
+}
+
+.words-page__title {
+  font-size: 28px;
+  font-weight: 800;
+  margin: 0 0 40px;
+}
+
+/* .words-page's own padding is the only part left showing the page's
+   #e7e7e4 background (a top/left/right gutter around this) — the tab
+   content itself, index column included, stays white edge-to-edge and for
+   its whole (very tall, scrollable) height, rather than just near the top
+   of the viewport or leaving the centered .words-view--index's auto-margin
+   gutters gray. */
+.words-panel-view {
+  background: #fff;
+}
+
+.words-tabs {
+  position: sticky;
+  top: var(--header-offset);
+  z-index: 10;
+  display: flex;
+  align-items: flex-end;
+  gap: 0;
+  margin-bottom: 40px;
+  padding-top: 16px;
+  background: #e7e7e4;
+  border-bottom: 1px solid #e5e0d0;
+}
+
+/* .words-tabs's margin-bottom (the 40px gap before .words-index picks up
+   its own sticky position) is dead space outside the element's own box —
+   with nothing opaque there, list text scrolling past flashes through it
+   as it passes underneath. This pseudo-element extends the tabs' white
+   background down through exactly that gap, anchored to the element's own
+   bottom edge (not a guessed pixel height) so it holds on any tab-bar
+   height, desktop or mobile. */
+.words-tabs::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  /* 2px past the 40px gap itself, as slack against sub-pixel rounding
+     between this and .words-search-banner's own sticky offset — the
+     overlap just doubles up white-on-white, so it's free. */
+  height: 42px;
+  background: #fff;
+}
+
+/* Trapezoid tab (reference): rounded top-left corner and a rounded bend
+   into the 45° right edge, both too curved for a straight-line clip-path
+   polygon alone — the actual shape is an SVG path built per tab in
+   words.js (shapeTabs()), sized to each button's real rendered
+   width/height. Flex-centers its label so the text sits in the middle of
+   the shape rather than trailing the uneven left/right space the diagonal
+   cut leaves. Each tab keeps its own fixed color identity (전체단어 blue,
+   키워드로 찾기 pink) rather than switching with selection. */
+.words-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 10px 44px 14px 18px;
+  margin-bottom: -1px;
+  cursor: pointer;
+  color: #1a1a1a;
+  opacity: 0.5;
+  position: relative;
+  transition: opacity 0.2s ease, box-shadow 0.15s ease;
+}
+
+.words-tab[data-tab="all"] {
+  background: #2c90f4;
+}
+
+.words-tab[data-tab="search"] {
+  background: #ed6cef;
+}
+
+.words-tab:hover {
+  opacity: 0.75;
+}
+
+.words-tab.active {
+  opacity: 1;
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.words-placeholder {
+  color: #999;
+  font-size: 15px;
+}
+
+.words-search-banner {
+  /* Sticks right below where .words-tabs's own covered region ends (see
+     its comment) — .words-index and .keyword-cloud then stick another
+     36px down (this banner's own ~16px line height + its 20px
+     padding-bottom), so the two sticky layers stack instead of overlapping.
+     padding rather than margin so the banner's own white background
+     actually covers that 20px gap — a margin sits outside the box, so
+     scrolling content used to show through it. */
+  position: sticky;
+  top: calc(var(--header-offset) + 100px);
+  z-index: 6;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 20px;
+  padding-left: 10px;
+  font-size: 14px;
+  color: #555;
+}
+
+.words-search-banner__clear {
+  font-size: 13px;
+  color: #888;
+  text-decoration: underline;
+  flex-shrink: 0;
+}
+
+.words-search-banner__clear:hover {
+  color: var(--ink);
+}
+
+
+.keyword-cloud {
+  /* Sticks at the same height .words-index does (see its comment for why
+     +136px), so the keyword row and the ㄱ~ㅎ column stay pinned together
+     while .keyword-results scrolls underneath — solid background so that
+     scrolling content doesn't show through behind it. */
+  position: sticky;
+  top: calc(var(--header-offset) + 136px);
+  z-index: 5;
+  background: #fff;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-bottom: 16px;
+}
+
+/* Reference: semacoral.org's tag cloud — each chip's color drifts slowly
+   and continuously through the hue wheel rather than sitting static.
+   hue-rotate keeps every chip's own lightness/contrast intact while
+   cycling its hue, so text stays readable throughout. Duration/delay are
+   set per chip in words.js (seeded, not truly random) so they drift out
+   of sync with each other instead of all shifting in lockstep. */
+@keyframes keyword-hue-shift {
+  from {
+    filter: hue-rotate(0deg) saturate(1.4);
+  }
+  to {
+    filter: hue-rotate(360deg) saturate(1.4);
+  }
+}
+
+.keyword-chip {
+  border: none;
+  border-radius: 6px;
+  padding: 7px 14px;
+  font: inherit;
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  animation: keyword-hue-shift linear infinite;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .keyword-chip {
+    animation: none;
+  }
+}
+
+.keyword-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+}
+
+.keyword-chip.active {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.keyword-results {
+  max-width: 1200px;
+}
+
+.words-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 30px;
+}
+
+.words-grid__card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+}
+
+.words-grid__image-wrap {
+  position: relative;
+  display: block;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.words-grid__card:hover .words-grid__image-wrap {
+  transform: translateY(-2px);
+}
+
+.words-grid__image-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(80, 80, 80, 0.2);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.words-grid__card:hover .words-grid__image-wrap::after {
+  opacity: 1;
+}
+
+.words-grid__image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  background: #f2efe6;
+}
+
+.words-grid__caption {
+  /* .words-grid__card is a column flex container, which stretches its
+     children to the full card width by default — without this the
+     highlight's background-size:100% would span that full width instead
+     of stopping at the end of the word. */
+  align-self: flex-start;
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 16px;
+  color: var(--ink);
+  background-image: linear-gradient(120deg, #fff176 0%, #fff176 100%);
+  background-repeat: no-repeat;
+  background-size: 0% 45%;
+  background-position: 0 88%;
+  transition: background-size 0.25s ease;
+}
+
+.words-grid__card:hover .words-grid__caption {
+  background-size: 100% 45%;
+}
+
+@media (max-width: 640px) {
+  .words-grid {
+    grid-template-columns: repeat(2, 1fr);
+    /* Narrower gap hands the freed-up width straight back to each column
+       (grid columns are 1fr), so thumbnails grow at the same time. */
+    gap: 14px;
+  }
+
+  .words-grid__caption {
+    font-size: 15px;
+  }
+
+  .words-page {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  #words-info {
+    top: 16px;
+    right: 36px;
+  }
+
+  .words-view--index {
+    gap: 16px;
+  }
+
+  /* The ㄱ~ㅎ index column (48px + gap) already reads as a wide left gutter,
+     but the right edge had only .words-page's flat 20px padding to match it
+     — thumbnails/keyword content sat almost flush against the screen edge.
+     This pulls the content in a bit further so the white margin on the
+     right reads closer in weight to the left side. */
+  .words-index-content {
+    padding-right: 16px;
+  }
+
+  /* Keyword chips: one scrollable row (~4 visible at a time) instead of
+     wrapping to several lines, so picking a keyword doesn't push the
+     results down the page. Setting only overflow-x implicitly turns
+     overflow-y into "auto" too (a CSS quirk — a lone non-"visible" axis
+     forces the other to compute the same way), which then clipped the
+     active chip's outline on every side that had no room for it — padding
+     added all around (not just top/bottom) covers the left edge too, where
+     the very first chip's outline sits flush against the scroll start. */
+  .keyword-cloud {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 6px 4px;
+  }
+
+  .keyword-chip {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+}
+
+/* ㄱ~ㅎ fixed on the left, word list scrolls on the right */
+
+/* max-width + auto margin centers the index+list row within
+   .words-panel-view (below) — kept here, not on the panel itself, so the
+   panel's own white background can still span the page's full width
+   behind this centered content instead of showing #e7e7e4 in the
+   auto-margin gutters on each side. */
+.words-view--index {
+  display: flex;
+  align-items: flex-start;
+  gap: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.words-index {
+  /* Must match .words-group's scroll-margin-top and .words-group__header's
+     top exactly — otherwise the left ㄱ~ㅎ button and the right-hand header
+     it maps to end up stuck at different heights when you scroll/click.
+     +100px = the tab bar's own ~60px height plus a 40px gap below it, where
+     .words-search-banner (see its comment) now sticks; +36px on top of
+     that is the banner's own line height + margin, so it and .words-index
+     stack instead of overlapping. */
+  position: sticky;
+  top: calc(var(--header-offset) + 136px);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: 48px;
+}
+
+.words-index[hidden] {
+  display: none;
+}
+
+.words-index__link {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 6px 0;
+  margin-bottom: 4px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #999;
+  overflow: hidden;
+  max-height: 40px;
+  opacity: 1;
+  transform: translateY(0);
+  transition: color 0.2s ease, background 0.2s ease, max-height 0.35s ease, opacity 0.3s ease,
+    transform 0.35s ease, margin 0.35s ease, padding 0.35s ease;
+}
+
+.words-index__link:hover {
+  color: var(--ink);
+}
+
+.words-index__link.active {
+  color: var(--ink);
+  background: #e7e7e4;
+}
+
+/* Consonants already scrolled past rise up and vanish, instead of the list
+   just growing taller as you move down through it. */
+.words-index__link--collapsed {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-12px);
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-bottom: 0;
+  pointer-events: none;
+}
+
+.words-index-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.words-group {
+  margin-bottom: 48px;
+  /* So clicking a ㄱ~ㅎ link scrolls the group's header exactly to the
+     height it sticks at (see .words-index / .words-group__header), instead
+     of landing a bit short or past it. */
+  scroll-margin-top: calc(var(--header-offset) + 136px);
+}
+
+.words-group__header {
+  font-size: 24px;
+  font-weight: 800;
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+  position: sticky;
+  top: calc(var(--header-offset) + 136px);
+  z-index: 5;
+  background: #fff;
+}
+
+.words-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.words-list li {
+  border-bottom: 1px solid #eee;
+}
+
+.word-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  font: inherit;
+  font-family: "Gowun Dodum", sans-serif;
+  padding: 10px 4px;
+  cursor: pointer;
+  font-size: 17px;
+  color: var(--ink);
+}
+
+.word-item__marker {
+  font-size: 9px;
+  flex-shrink: 0;
+}
+
+.word-item__label {
+  background-image: linear-gradient(120deg, #fff176 0%, #fff176 100%);
+  background-repeat: no-repeat;
+  background-size: 0% 45%;
+  background-position: 0 88%;
+  transition: background-size 0.25s ease;
+}
+
+.word-item:hover .word-item__label {
+  background-size: 100% 45%;
+}
+
+/* Slide panel */
+
+.word-panel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  z-index: 1100;
+}
+
+.word-panel-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.word-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 50%;
+  background: #fff;
+  border-top-left-radius: 14px;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  z-index: 1200;
+  padding: 32px 28px;
+  overflow-y: auto;
+  outline: none;
+}
+
+/* Soft vignette along the top and inner edge, like a book page curving into
+   shadow near its spine and top fold — purely decorative, sits behind content. */
+.word-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-top-left-radius: 14px;
+  background:
+    linear-gradient(to right, rgba(0, 0, 0, 0.1), transparent 5%),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.06), transparent 6%);
+}
+
+.word-panel.open {
+  transform: translateX(0);
+  /* Only while open — see .bookcase-panel.open for why this moved out of
+     the base rule (same fixed slide-in panel pattern, same bug). */
+  box-shadow: -30px 0 60px rgba(0, 0, 0, 0.28), -6px 0 16px rgba(0, 0, 0, 0.14);
+}
+
+.word-panel__close {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  line-height: 1;
+}
+
+.word-panel__body {
+  margin-top: 16px;
+  font-size: 14px;
+  line-height: 1.8;
+  color: #333;
+  white-space: pre-line;
+}
+
+.word-panel__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+.word-panel__title {
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  text-align: center;
+  margin: 48px 0 8px;
+}
+
+.word-panel__title.typing::after {
+  content: "|";
+  margin-left: 2px;
+  animation: word-panel-cursor-blink 0.8s step-end infinite;
+}
+
+@keyframes word-panel-cursor-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.word-panel__byline {
+  font-size: 13px;
+  color: #888;
+  text-align: center;
+}
+
+/* Panel is now wider (50vw), but its content should stay the size it was
+   at the old ~420px panel width — cap and center it instead of stretching. */
+.word-panel__title,
+.word-panel__byline,
+.word-panel__body {
+  max-width: 364px;
+  margin-left: auto;
+  margin-right: auto;
+}
+

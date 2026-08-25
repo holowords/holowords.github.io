@@ -1,7 +1,32 @@
 /* Fetches the live word list from the shared Google Drive folder (js/drive-config.js).
-   Shared by words.html (full list) and index.html/work.html (card titles), so both
-   stay in sync with whatever is in the Drive folder. */
+   Shared by words.html (full list) and index.html/book.html (nav search +
+   count), so all three stay in sync with whatever is in the Drive folder —
+   which also means all three re-ran this same paginated fetch on every
+   single page load. Session-cached below so navigating between them in one
+   visit only hits Drive once. */
+const DRIVE_WORDS_CACHE_KEY = "driveWordsCache";
+const DRIVE_WORDS_CACHE_TTL = 5 * 60 * 1000; // 5 min — long enough to cover browsing between pages, short enough that a word added to the folder shows up again soon.
+
 async function fetchDriveWords() {
+  try {
+    const cached = JSON.parse(sessionStorage.getItem(DRIVE_WORDS_CACHE_KEY) || "null");
+    if (cached && Date.now() - cached.time < DRIVE_WORDS_CACHE_TTL) return cached.words;
+  } catch (err) {
+    // Corrupt/unavailable sessionStorage (private browsing, etc.) — fall through to a real fetch.
+  }
+
+  const words = await fetchDriveWordsUncached();
+
+  try {
+    sessionStorage.setItem(DRIVE_WORDS_CACHE_KEY, JSON.stringify({ time: Date.now(), words }));
+  } catch (err) {
+    // Storage full/unavailable — the fetch itself still succeeded, so just skip caching it.
+  }
+
+  return words;
+}
+
+async function fetchDriveWordsUncached() {
   const { folderId, apiKey } = DRIVE_CONFIG;
   const q = encodeURIComponent(`'${folderId}' in parents and trashed = false`);
   let files = [];

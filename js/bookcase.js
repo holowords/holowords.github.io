@@ -269,4 +269,14 @@ document.addEventListener("DOMContentLoaded", () => {
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closePanel();
   });
+
+  /* Deep link from the sitewide search (see js/words.js's exact-title
+     fallback) straight into one book's detail panel, e.g.
+     index.html?book=고래#bookcase — nav.js's own hash routing already
+     lands on the bookcase tab; this just opens the panel on top of it. */
+  const bookParam = (new URLSearchParams(location.search).get("book") || "").trim().normalize("NFC");
+  if (bookParam) {
+    const match = BOOKCASE_ITEMS.find((b) => b.title.normalize("NFC") === bookParam);
+    if (match) openPanel(match);
+  }
 });

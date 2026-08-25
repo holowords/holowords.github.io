@@ -21,6 +21,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let pageFlip = null;
 
+  /* StPageFlip has no lazy-loading of its own (loadFromImages/
+     updateFromImages both synchronously kick off a `new Image()` fetch for
+     every single href handed to it) — passing all 272 pages up front meant
+     opening the book always triggered a ~10MB burst of requests before the
+     reader could see anything. Instead: open with just enough pages for an
+     immediate first look (front cover + ~5 entries' worth), then swap in
+     the full set in the background (see ensureFullyLoaded) once that's
+     rendered, or immediately if something needs a page beyond it. */
+  const BOOK_INITIAL_PAGE_BUDGET = 24;
+  let fullyLoaded = false;
+
   /* Quick-jump index above the book, entries 1–80: a button per entry
      number, 16 per row over 5 rows. Each jumps to that entry's actual page
      via BOOK_ENTRY_PAGES (see book-data.js) — entry number and BOOK_PAGES
@@ -39,6 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.textContent = n;
     btn.addEventListener("click", () => {
       if (!pageFlip) return;
+      ensureFullyLoaded();
       pageFlip.turnToPage(target);
       // Left focused, this and :focus-styled circles were rendering with a
       // stray gray fill that no CSS property (background, outline,
@@ -107,6 +119,20 @@ document.addEventListener("DOMContentLoaded", () => {
     progressInput.max = total;
     updateCoverMask();
     updateIndexActive(current);
+    // Reading linearly toward the edge of the initial (small) page set —
+    // load the rest now instead of waiting for flipNext() to hit a dead
+    // end right at the boundary.
+    if (!fullyLoaded && current >= BOOK_INITIAL_PAGE_BUDGET - 4) ensureFullyLoaded();
+  }
+
+  /* Swaps in every page (see BOOK_INITIAL_PAGE_BUDGET above), preserving
+     whatever page is currently showing. Safe to call more than once or
+     before pageFlip exists — a no-op past the first real call. */
+  function ensureFullyLoaded() {
+    if (fullyLoaded || !pageFlip) return;
+    fullyLoaded = true;
+    pageFlip.updateFromImages(BOOK_PAGES);
+    updateControls();
   }
 
   /* Clicking the "N / total" label swaps it for a number input so you can
@@ -128,6 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   progressForm.addEventListener("submit", (e) => {
     e.preventDefault();
+    ensureFullyLoaded();
     const total = pageFlip.getPageCount();
     const target = Math.min(total, Math.max(1, parseInt(progressInput.value, 10) || 1));
     pageFlip.turnToPage(target - 1);
@@ -192,7 +219,7 @@ document.addEventListener("DOMContentLoaded", () => {
       mobileScrollSupport: false,
       flippingTime: 700,
     });
-    pageFlip.loadFromImages(BOOK_PAGES);
+    pageFlip.loadFromImages(BOOK_PAGES.slice(0, BOOK_INITIAL_PAGE_BUDGET));
     sharpenCanvas();
     pageFlip.on("flip", updateControls);
     pageFlip.on("changeOrientation", updateCoverMask);
@@ -220,6 +247,16 @@ document.addEventListener("DOMContentLoaded", () => {
       sharpenCanvas();
       pageFlip.turnToPage(pageFlip.getCurrentPageIndex());
     });
+
+    /* Opportunistic background top-up, well after the first pages have had
+       time to actually render — requestIdleCallback looked like the right
+       tool here but fires almost immediately on a page this quiet (nothing
+       else competing for the main thread), which defeated the point: it
+       started the other ~250 requests before the visible page had even
+       finished painting. A flat delay actually keeps them out of the way;
+       updateControls' edge check (above) is the real safety net if a
+       reader flips through the initial pages faster than this. */
+    setTimeout(ensureFullyLoaded, 4000);
   }
 
   /* flipNext()/flipPrev() drive the same animated page-turn (curl + shadow)
@@ -245,15 +282,28 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.key === "ArrowRight") pageFlip.flipNext();
   });
 
-  launch.addEventListener("click", () => {
+  function openViewer() {
     launch.hidden = true;
     viewer.classList.add("active");
     initFlipbook();
-  });
+  }
+
+  launch.addEventListener("click", openViewer);
 
   resetBtn.addEventListener("click", () => {
     viewer.classList.remove("active");
     launch.hidden = false;
     if (pageFlip) pageFlip.turnToPage(0);
   });
+
+  /* Deep link from the sitewide search (see js/words.js's exact-title
+     fallback) straight into one entry's page, e.g. book.html?entry=63 —
+     opens the viewer itself rather than leaving it on the closed-cover
+     launch state the visitor would otherwise have to click through. */
+  const entryParam = parseInt(new URLSearchParams(location.search).get("entry"), 10);
+  if (entryParam && BOOK_ENTRY_PAGES[entryParam] !== undefined) {
+    openViewer();
+    ensureFullyLoaded();
+    pageFlip.turnToPage(BOOK_ENTRY_PAGES[entryParam]);
+  }
 });

@@ -7,19 +7,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Manrope:wght@700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/home.css" />
+  <link rel="stylesheet" href="css/work.css" />
+  <link rel="stylesheet" href="css/bookcase.css" />
+  <link rel="stylesheet" href="css/words.css" />
+  <link rel="stylesheet" href="css/work-detail.css" />
+  <link rel="stylesheet" href="css/nav-mobile.css" />
+  <link rel="stylesheet" href="css/book.css" />
 </head>
 <body data-page="home">
-  <nav class="site-nav">
-    <div class="site-nav__links">
-      <a href="#about" data-nav="about" id="nav-holo-words">holo words</a>
-      <a href="#about-intro" data-nav="about" id="nav-about">about</a>
-      <a href="words.html" data-nav="words">words</a>
-      <a href="#work" data-nav="work">work</a>
-      <a href="book.html" data-nav="book">book</a>
-      <a href="#bookcase" data-nav="bookcase">book case</a>
-    </div>
-  </nav>
+  <nav class="site-nav" id="site-nav"></nav>
 
   <div class="nav-search-wrap">
     <form class="nav-search" id="search-box" autocomplete="off">
@@ -352,27 +350,9 @@
   </script>
   <script src="js/drive-config.js"></script>
   <script src="js/drive-words.js"></script>
-  <script>
-    (async () => {
-      const searchForm = document.getElementById("search-box");
-      const searchInput = document.getElementById("search-input");
-      const wordCount = document.getElementById("word-count");
-
-      searchForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const q = searchInput.value.trim();
-        location.href = q ? `words.html?q=${encodeURIComponent(q)}` : "words.html";
-      });
-
-      try {
-        const words = await fetchDriveWords();
-        wordCount.textContent = `총 ${words.length}개`;
-      } catch (err) {
-        console.error(err);
-      }
-    })();
-  </script>
+  <script src="js/book-data.js"></script>
   <script src="js/bookcase-data.js"></script>
+  <script src="js/nav-search.js"></script>
   <script src="js/bookcase.js"></script>
   <script src="js/nav.js"></script>
 </body>

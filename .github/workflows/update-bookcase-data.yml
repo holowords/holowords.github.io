@@ -7,7 +7,11 @@ name: Update bookcase-data.js
 # edit doesn't push a commit here for anything to trigger on.
 on:
   schedule:
-    - cron: "0 21 * * *" # 06:00 KST daily
+    # Every 30 min instead of once a day — a book added in Notion showed up
+    # to a full day late otherwise. The script only does real work
+    # (image download/color extraction/Aladin lookup) for titles not
+    # already in js/bookcase-data.js, so the extra runs stay cheap.
+    - cron: "*/30 * * * *"
   workflow_dispatch: {} # "Run workflow" button, for right after adding a book
 
 permissions:

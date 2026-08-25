@@ -125,7 +125,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   indexContent.textContent = "불러오는 중...";
 
-  const query = (new URLSearchParams(location.search).get("q") || "").trim();
+  // NFC-normalized — Korean typed/pasted on macOS can arrive decomposed
+  // (NFD), which looks identical on screen but fails a plain "===" against
+  // the precomposed titles below (Drive words are already normalized in
+  // fetchDriveWords; this keeps the query in step with them).
+  const query = (new URLSearchParams(location.search).get("q") || "").trim().normalize("NFC");
   if (query) searchInput.value = query;
 
   searchForm.addEventListener("submit", (e) => {
@@ -137,7 +141,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   let words;
   try {
     words = await fetchDriveWords();
-    wordCount.textContent = `총 ${words.length}개`;
+    // Sitewide count: Drive words + the Book tab's 80 entries + every
+    // bookcase title (see js/book-data.js, js/bookcase-data.js) — all
+    // three are searchable from here (see the exact-title fallback below),
+    // so the count should read as "everything you can search," not just
+    // what's listed on this page.
+    const bookCount = typeof BOOK_ENTRY_TITLES !== "undefined" ? Object.keys(BOOK_ENTRY_TITLES).length : 0;
+    const bookcaseCount = typeof BOOKCASE_ITEMS !== "undefined" ? BOOKCASE_ITEMS.length : 0;
+    wordCount.textContent = `총 ${words.length + bookCount + bookcaseCount}개`;
   } catch (err) {
     indexContent.textContent = "구글 드라이브에서 단어를 불러오지 못했습니다.";
     console.error(err);
@@ -151,6 +162,30 @@ document.addEventListener("DOMContentLoaded", async () => {
   runKeywordSearch();
 
   if (query) {
+    /* Not every searchable word lives in the Drive list — a search that
+       doesn't exactly match one here, but exactly matches a Book entry's
+       title or a bookcase book's title, jumps straight to that page
+       instead of coming up empty. Exact only (not scored/fuzzy) — a loose
+       match to "고래" from typing "고" would be wrong more often than
+       right, unlike an exact word-for-word hit. */
+    const exactWordMatch = allWords.find((w) => w.title.normalize("NFC") === query);
+    if (!exactWordMatch) {
+      const bookEntry =
+        typeof BOOK_ENTRY_TITLES !== "undefined" &&
+        Object.entries(BOOK_ENTRY_TITLES).find(([, title]) => title.normalize("NFC") === query);
+      if (bookEntry) {
+        location.href = `book.html?entry=${bookEntry[0]}`;
+        return;
+      }
+      const bookcaseMatch =
+        typeof BOOKCASE_ITEMS !== "undefined" &&
+        BOOKCASE_ITEMS.find((b) => b.title.normalize("NFC") === query);
+      if (bookcaseMatch) {
+        location.href = `index.html?book=${encodeURIComponent(bookcaseMatch.title)}#bookcase`;
+        return;
+      }
+    }
+
     /* Search results aren't grouped by ㄱ~ㅎ — they're one flat list, ranked
        by character overlap with the query (see scoreMatches), capped to the
        8 closest matches so an exact/near-exact hit isn't buried under a

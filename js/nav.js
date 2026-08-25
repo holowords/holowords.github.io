@@ -1,3 +1,29 @@
+/* The nav's actual links, injected here instead of duplicated as static
+   HTML in index.html/words.html/book.html — three copies had already
+   drifted out of sync with each other more than once (a stale label, a
+   missing hash) over the course of small nav tweaks. Runs synchronously,
+   before DOMContentLoaded, since this <script> tag sits at the end of
+   <body> (after the empty <nav id="site-nav">) — the DOM is already
+   parsed and nothing has painted yet, so this replaces "static markup"
+   with "identical markup from one source" rather than causing a visible
+   flash. Every href points at index.html explicitly (even the panel links,
+   which nav.js below always intercepts with preventDefault() anyway) so
+   the same string is correct regardless of which page it's mounted on. */
+(() => {
+  const mount = document.getElementById("site-nav");
+  if (!mount) return;
+  mount.innerHTML = `
+    <div class="site-nav__links">
+      <a href="index.html#about" data-nav="about" id="nav-holo-words">holo words</a>
+      <a href="index.html#about-intro" data-nav="about" id="nav-about">about</a>
+      <a href="words.html" data-nav="words">words</a>
+      <a href="index.html#work" data-nav="work">work</a>
+      <a href="book.html" data-nav="book">book</a>
+      <a href="index.html#bookcase" data-nav="bookcase">book case</a>
+    </div>
+  `;
+})();
+
 /* Shared nav behavior: highlight the active menu item. */
 document.addEventListener("DOMContentLoaded", () => {
   const navLinks = document.querySelectorAll(".site-nav a");
@@ -125,6 +151,12 @@ document.addEventListener("DOMContentLoaded", () => {
   if (homeLink && aboutLink && aboutPanel && aboutIntro) {
     const heroScrollObserver = new IntersectionObserver(
       (entries) => {
+        // Switching to Work/bookcase hides #about (display:none) rather
+        // than disconnecting the observer — its root going invisible still
+        // fires a callback (isIntersecting:false), which without this guard
+        // reads as "scrolled past the hero" and wrongly re-bolds "holo
+        // words" over whatever tab is actually showing.
+        if (!aboutPanel.classList.contains("active")) return;
         entries.forEach((entry) => {
           homeLink.classList.toggle("active", !entry.isIntersecting);
           aboutLink.classList.toggle("active", entry.isIntersecting);

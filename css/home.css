@@ -1,0 +1,250 @@
+/* ---------------------------------------------------------------------- */
+/* Home page tabs: About / Work / Contact are switched by nav clicks (see
+   nav.js), not by scrolling — only the active section is ever visible, and
+   each fills exactly the remaining viewport with its own internal scroll,
+   so content never bleeds into the next tab. */
+/* ---------------------------------------------------------------------- */
+
+#about {
+  height: calc(100vh - var(--header-offset));
+  overflow-y: auto;
+  /* overflow:auto panels are auto-focusable in Chrome (for keyboard arrow
+     scrolling), which draws its default blue focus ring around the whole
+     panel the moment it's scrolled/clicked into. There's nothing to focus
+     here for accessibility purposes that isn't already reachable via the
+     nav links and the content's own interactive elements. */
+  outline: none;
+  display: none;
+  position: relative;
+  background-color: #d9d9d8;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cline x1='40' y1='0' x2='40' y2='40' stroke='%23a0a09f' stroke-width='1' stroke-dasharray='2,3'/%3E%3Cline x1='0' y1='40' x2='40' y2='40' stroke='%23a0a09f' stroke-width='1' stroke-dasharray='2,3'/%3E%3C/svg%3E");
+  background-size: 22px 22px;
+  text-align: center;
+}
+
+#about.active {
+  display: block;
+}
+
+.about-hero {
+  min-height: calc(100vh - var(--header-offset));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  position: relative;
+}
+
+/* Bounces in place to invite scrolling; also doubles as a click-to-advance
+   shortcut down to .about-intro (see index.html) since #about's own
+   overflow-y:auto already reveals it on a normal scroll/wheel/drag. */
+.about-scroll-cue {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: none;
+  background: none;
+  padding: 4px 12px;
+  font-size: 28px;
+  line-height: 1;
+  color: #000;
+  cursor: pointer;
+  animation: about-scroll-cue-bounce 1.6s ease-in-out infinite;
+}
+
+@keyframes about-scroll-cue-bounce {
+  0%,
+  100% {
+    transform: translate(-50%, 0);
+  }
+  50% {
+    transform: translate(-50%, 8px);
+  }
+}
+
+.about-intro {
+  min-height: calc(100vh - var(--header-offset));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 80px 24px;
+  text-align: center;
+  position: relative;
+}
+
+.about-intro__eyebrow {
+  font-family: "Manrope", sans-serif;
+  font-size: clamp(32px, 5vw, 56px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #000;
+  margin: 0;
+}
+
+.select-highlight--welcome {
+  margin: 0;
+}
+
+.about-intro__welcome {
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: clamp(16px, 2.2vw, 22px);
+  color: #000;
+  margin: 0;
+  /* Mobile types a literal "\n" into this element (see index.html) to
+     split it onto two lines — harmless on desktop, which never contains
+     one. */
+  white-space: pre-line;
+}
+
+.about-intro__welcome.typing::after {
+  content: "|";
+  margin-left: 0.1em;
+  animation: word-panel-cursor-blink 0.8s step-end infinite;
+}
+
+.about-intro__body {
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: clamp(14px, 1.6vw, 17px);
+  color: #000;
+  line-height: 1.8;
+  max-width: 640px;
+  margin: 0;
+}
+
+/* Mobile only — desktop keeps this run-on as one paragraph (see the plain
+   span in index.html, inline there by default). */
+@media (max-width: 640px) {
+  .about-intro__body-line2 {
+    display: block;
+    margin-top: 12px;
+  }
+}
+
+.about-intro__footer {
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: clamp(14px, 1.6vw, 17px);
+  color: #000;
+  margin: 4px 0 0;
+}
+
+/* "홀로둥이란?" glossary toggle, pinned to the intro page's bottom-right
+   corner. The panel sits above the button (bottom:100%) since the button
+   itself already sits at the page's bottom edge — expanding downward
+   would run off the page. */
+.about-glossary {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  text-align: left;
+}
+
+.about-glossary__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #1a1a1a;
+  background: #fff;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font: inherit;
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 14px;
+  color: #000;
+  cursor: pointer;
+}
+
+.about-glossary__chevron {
+  transition: transform 0.2s ease;
+}
+
+.about-glossary.open .about-glossary__chevron {
+  transform: rotate(180deg);
+}
+
+.about-glossary__panel {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 10px);
+  width: min(380px, 80vw);
+  background: #fff;
+  border: 1px solid #1a1a1a;
+  border-radius: 12px;
+  padding: 20px;
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 14px;
+  line-height: 1.8;
+  color: #000;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+
+.about-glossary.open .about-glossary__panel {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.about-glossary__panel p + p {
+  margin-top: 14px;
+}
+
+.identity-mark {
+  font-family: "Manrope", sans-serif;
+  font-size: clamp(48px, 9vw, 120px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #000;
+  margin: 0;
+  line-height: 1;
+}
+
+.identity-mark.typing::after {
+  content: "|";
+  margin-left: 0.05em;
+  animation: word-panel-cursor-blink 0.8s step-end infinite;
+}
+
+.identity-sub {
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: clamp(14px, 2vw, 18px);
+  letter-spacing: 0.08em;
+  color: #000;
+}
+
+.identity-sub.typing::after {
+  content: "|";
+  margin-left: 0.1em;
+  animation: word-panel-cursor-blink 0.8s step-end infinite;
+}
+
+/* Text-selection-highlight look: a translucent bar sits behind the text —
+   the wrapper's own background, painted behind its child content for
+   free — mimicking a mobile text-selection drag without the drag handles
+   themselves. */
+.select-highlight {
+  display: inline-flex;
+  background: rgba(161, 197, 246, 0.55);
+  padding: 0.05em 0.2em;
+}
+
+/* Same highlight color as .select-highlight, but a plain inline span (not
+   inline-flex) for marking a run of words inside a paragraph rather than
+   wrapping a standalone heading/line. */
+.text-highlight {
+  background: rgba(161, 197, 246, 0.55);
+  padding: 0.02em 0.15em;
+}
+
+.select-highlight--sub {
+  margin-top: 20px;
+}
+

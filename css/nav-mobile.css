@@ -1,0 +1,124 @@
+/* ---------------------------------------------------------------------- */
+/* Mobile: search box + word count move to a white bar under the nav      */
+/* ---------------------------------------------------------------------- */
+
+@media (max-width: 640px) {
+  /* Fixed, explicit sizing (not "auto") so this bar's real height always
+     matches --mobile-topbar-height below — otherwise it can grow taller
+     than the reserved space and overlap the page content under it. */
+  body:not([data-page="work-detail"]):not([data-page="book"]) {
+    --mobile-topbar-height: 50px;
+    --header-offset: calc(var(--nav-height) + var(--mobile-topbar-height));
+    padding-top: var(--header-offset);
+  }
+
+  /* bookcase tab: no search bar, so no reserved space for it either —
+     otherwise its dark panel would start with an empty white gap under
+     the nav where the bar used to be. */
+  body:not([data-page="work-detail"]):not([data-page="book"]).mobile-search-hidden {
+    --mobile-topbar-height: 0px;
+  }
+
+  body.mobile-search-hidden .nav-search-wrap {
+    display: none;
+  }
+
+  /* The search bar sits flush under the nav here (see .nav-search-wrap's
+     own top offset) with the same background — a border on the nav's own
+     bottom edge just read as a seam between the two, so only the search
+     bar's border-bottom below closes off the combined strip. */
+  .site-nav {
+    padding: 0 16px;
+    border-bottom: none;
+  }
+
+  .site-nav__links {
+    gap: 14px;
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .site-nav__links::-webkit-scrollbar {
+    display: none;
+  }
+
+  .site-nav a {
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  /* "About" duplicates where "holo words" already lands (the about panel,
+     just scrolled to its top instead of the intro) — dropped here so the
+     other five items (including book case, previously pushed off the edge
+     entirely) all fit without wrapping or scrolling on a standard phone
+     width. */
+  #nav-about {
+    display: none;
+  }
+
+  .nav-search-wrap {
+    position: fixed;
+    top: var(--nav-height);
+    left: 0;
+    right: 0;
+    height: var(--mobile-topbar-height, 50px);
+    flex-direction: row;
+    /* Top-aligned with a small top pad instead of centered — the extra
+       height below (see --mobile-topbar-height) all becomes bottom
+       breathing room instead of splitting evenly. */
+    align-items: flex-start;
+    justify-content: center;
+    gap: 10px;
+    padding: 5px 16px 0;
+    /* Same material as .site-nav (see there), so the two bars read as one
+       continuous strip rather than two different-toned ones stacked. */
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid #e5e0d0;
+  }
+
+  /* Fills whatever width is left after the count (like a mobile browser's
+     own address bar — it grows/shrinks with the viewport rather than
+     sitting at one fixed width). */
+  .nav-search {
+    width: auto;
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 34px;
+  }
+
+  .nav-search__input {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+  }
+
+  .nav-search__count {
+    flex-shrink: 0;
+    line-height: 16px;
+    text-align: right;
+  }
+
+  /* Book's mobile page-flip viewer already fills the space right under the
+     nav (see body:not(...)'s --mobile-topbar-height exclusion for
+     data-page="book") — showing the bar here on a phone would float over
+     it with no reserved room. Desktop is unaffected: this is the only
+     place the bar is hidden for this page. */
+  body[data-page="book"] .nav-search-wrap {
+    display: none;
+  }
+
+  /* Word detail panel covers nearly the whole screen on mobile, leaving just
+     a small sliver of the list visible on the left instead of sitting at 50%.
+     The desktop shadow's 60px blur is wider than that sliver, so it read as
+     a flat dark band there instead of a soft edge — drop it on mobile. */
+  .word-panel {
+    width: calc(100% - 32px);
+  }
+
+  .word-panel.open {
+    box-shadow: none;
+  }
+}
+

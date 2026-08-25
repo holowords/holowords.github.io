@@ -1,0 +1,362 @@
+/* ---------------------------------------------------------------------- */
+/* Book tab — closed-cover launch + 3D page-flip viewer                   */
+/* ---------------------------------------------------------------------- */
+
+body[data-page="book"] {
+  background: #15130f;
+}
+
+/* .site-nav's own background is a translucent white (see there) meant to
+   sit over a light page — against this page's near-black body it let a
+   faint dark cast bleed through, so the nav read slightly off compared to
+   the other (light-background) pages. Solid white here matches them. */
+body[data-page="book"] .site-nav {
+  background: #fff;
+}
+
+.book-page {
+  min-height: calc(100vh - var(--header-offset));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  padding: 24px 24px 72px;
+}
+
+.book-cover-launch[hidden] {
+  display: none;
+}
+
+.book-cover-launch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.book-cover-launch img {
+  width: min(748px, 92vw);
+  filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.5));
+  transition: transform 0.3s ease;
+}
+
+.book-cover-launch:hover img {
+  transform: translateY(-6px);
+}
+
+.book-cover-launch__label {
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 15px;
+  color: #f5efe0;
+  opacity: 0.75;
+  letter-spacing: 0.03em;
+}
+
+.book-viewer {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+}
+
+.book-viewer.active {
+  display: flex;
+}
+
+/* Quick-jump index (pages 1–80), 20 per row over 4 rows. */
+.book-index {
+  display: grid;
+  grid-template-columns: repeat(20, 1fr);
+  gap: 1px;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.book-index__link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin: 0 auto;
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 11px;
+  color: rgba(245, 239, 224, 0.55);
+  padding: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+/* appearance:auto (the default) leaves the browser drawing its own native
+   button chrome underneath our styles — on Chrome that includes a gray
+   focus/pressed fill that ignores outline:none and background:none alike,
+   so it was showing through as a stray gray circle no matter what those
+   two said. appearance:none above turns that native rendering off outright.
+   :hover, :focus, and .active then share one cream language instead of a
+   browser default fighting for the same space. */
+.book-index__link:hover,
+.book-index__link:focus {
+  color: #f5efe0;
+  background-color: rgba(245, 239, 224, 0.1);
+}
+
+.book-index__link.active {
+  color: #15130f;
+  background: #f5efe0;
+  font-weight: 700;
+}
+
+.book-index__more {
+  display: none;
+  width: 24px;
+  height: 24px;
+  /* .book-viewer's flex gap (20px) already separates this from .book-index
+     above it — pull it back in so the two read as one connected control. */
+  margin: -12px auto 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(245, 239, 224, 0.1);
+  color: rgba(245, 239, 224, 0.7);
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.25s ease, background-color 0.15s ease;
+}
+
+.book-index__more.expanded {
+  transform: rotate(180deg);
+}
+
+.book-stage {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 800px;
+}
+
+.book-nav {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(245, 239, 224, 0.3);
+  background: rgba(245, 239, 224, 0.06);
+  color: #f5efe0;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s ease, opacity 0.2s ease;
+}
+
+.book-nav:hover:not(:disabled) {
+  background: rgba(245, 239, 224, 0.16);
+}
+
+.book-nav:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.book-frame {
+  position: relative;
+  flex: 1;
+  /* Flex items default to min-width:auto, which refuses to shrink below
+     the content's intrinsic size — since StPageFlip's "stretch" mode reads
+     that intrinsic size to decide how big to render, the two feed back on
+     each other and the book never shrinks to fit narrow screens, overflowing
+     past the edge instead. min-width:0 removes that floor. */
+  min-width: 0;
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.45));
+}
+
+.book-frame__clip {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  transition: clip-path 0.2s ease;
+}
+
+/* StPageFlip sizes and positions its own canvas inside this element. */
+#book-flip {
+  margin: 0 auto;
+}
+
+/* On the front/back cover, StPageFlip renders the cover on one half of the
+   spread and leaves the other half blank (white) — a real book's cover
+   before any page has turned. clip-path crops that blank half out of the
+   canvas's own painted output (rather than painting a solid panel over it,
+   which read as a flat dark square against the shadow) — the drop-shadow
+   on .book-frame is computed from this element's composited pixels, so
+   clipping here still leaves it hugging just the visible cover. */
+.book-frame--cover-front .book-frame__clip {
+  clip-path: inset(0 0 0 50%);
+}
+
+.book-frame--cover-back .book-frame__clip {
+  clip-path: inset(0 50% 0 0);
+}
+
+/* Invisible click targets over the clipped-away half, siblings of the
+   clipped element (not inside it) so clip-path doesn't also swallow their
+   hit-testing. Nothing to mask visually anymore, but clicking that side of
+   the book should still turn the page the way clicking the visible cover
+   does (see book.js). */
+.book-frame__mask {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  pointer-events: none;
+}
+
+.book-frame__mask--left {
+  left: 0;
+}
+
+.book-frame__mask--right {
+  right: 0;
+}
+
+.book-frame--cover-front .book-frame__mask--left {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.book-frame--cover-back .book-frame__mask--right {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.book-footer {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.book-progress {
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 13px;
+  color: #f5efe0;
+  letter-spacing: 0.05em;
+  background: rgba(245, 239, 224, 0.06);
+  border: 1px solid rgba(245, 239, 224, 0.4);
+  border-radius: 8px;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.book-progress:hover {
+  background: rgba(245, 239, 224, 0.14);
+  border-color: rgba(245, 239, 224, 0.6);
+}
+
+.book-progress-form {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 13px;
+  color: #f5efe0;
+}
+
+.book-progress-form[hidden] {
+  display: none;
+}
+
+.book-progress-form__input,
+#book-progress-input {
+  width: 44px;
+  background: rgba(245, 239, 224, 0.06);
+  border: 1px solid rgba(245, 239, 224, 0.4);
+  border-radius: 8px;
+  color: #f5efe0;
+  font: inherit;
+  padding: 6px 10px;
+  text-align: right;
+}
+
+#book-progress-input:focus {
+  outline: none;
+  border-color: rgba(245, 239, 224, 0.6);
+}
+
+.book-reset {
+  background: none;
+  border: none;
+  font: inherit;
+  font-size: 13px;
+  color: #f5efe0;
+  opacity: 0.5;
+  border-bottom: 1px solid currentColor;
+  padding: 0 0 1px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.book-reset:hover {
+  opacity: 0.85;
+}
+
+@media (max-width: 640px) {
+  .book-stage {
+    gap: 14px;
+  }
+
+  .book-nav {
+    width: 26px;
+    height: 26px;
+    font-size: 13px;
+  }
+
+  .book-frame {
+    max-height: 56vh;
+  }
+
+  .book-index {
+    grid-template-columns: repeat(10, 1fr);
+    gap: 0;
+    font-size: 10px;
+    /* 4 rows of 24px links, then clipped — the chevron below toggles the
+       rest (10 columns × 8 rows = all 80 once expanded). */
+    max-height: 96px;
+    overflow: hidden;
+  }
+
+  .book-index__link {
+    width: 24px;
+    height: 24px;
+  }
+
+  .book-index.expanded {
+    max-height: none;
+  }
+
+  .book-index__more {
+    display: flex;
+  }
+}
