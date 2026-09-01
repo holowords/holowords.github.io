@@ -14,7 +14,9 @@
   if (!mount) return;
   mount.innerHTML = `
     <div class="site-nav__links">
-      <a href="index.html#about" data-nav="about" id="nav-holo-words">holo words</a>
+      <a href="index.html#about" data-nav="about" id="nav-holo-words" aria-label="holo words">
+        <img class="site-nav__logo" src="image/Logo/로고_2.png" alt="holo words" />
+      </a>
       <a href="index.html#about-intro" data-nav="about" id="nav-about">about</a>
       <a href="words.html" data-nav="words">words</a>
       <a href="index.html#work" data-nav="work">work</a>
@@ -28,6 +30,67 @@
 document.addEventListener("DOMContentLoaded", () => {
   const navLinks = document.querySelectorAll(".site-nav a");
   const page = document.body.dataset.page;
+
+  /* The menubar "holo words" mark is a random planet from image/Logo/
+     (every file except 0_로고_메뉴바.png) — a fresh one on every page load
+     and on every nav click, on every page. The next image is prefetched so
+     the swap never flashes a half-loaded frame. */
+  (() => {
+    const logo = document.querySelector("#nav-holo-words .site-nav__logo");
+    if (!logo) return;
+    const MARKS = [
+      "image/Logo/로고_2.png",
+      "image/Logo/Artboard 72x.png",
+      "image/Logo/Artboard 7 copy2x.png",
+      "image/Logo/Artboard 7 copy 22x.png",
+      "image/Logo/Artboard 7 copy 32x.png",
+      "image/Logo/Artboard 7 copy 42x.png",
+      "image/Logo/Artboard 7 copy 52x.png",
+      "image/Logo/Artboard 7 copy 62x.png",
+      "image/Logo/Artboard 7 copy 72x.png",
+      "image/Logo/Artboard 7 copy 82x.png",
+      "image/Logo/Artboard 7 copy 92x.png",
+      "image/Logo/Artboard 7 copy 102x.png",
+      "image/Logo/Artboard 7 copy 112x.png",
+      "image/Logo/Artboard 7 copy 122x.png",
+      "image/Logo/Artboard 7 copy 132x.png",
+      "image/Logo/Artboard 7 copy 142x.png",
+      "image/Logo/Artboard 7 copy 152x.png",
+      "image/Logo/Artboard 7 copy 162x.png",
+      "image/Logo/Artboard 7 copy 172x.png",
+      "image/Logo/Artboard 7 copy 182x.png",
+    ];
+    let currentMark = null;
+    let nextMark = null;
+
+    function pickMark() {
+      if (MARKS.length < 2) return MARKS[0];
+      let src;
+      do {
+        src = MARKS[Math.floor(Math.random() * MARKS.length)];
+      } while (src === currentMark);
+      return src;
+    }
+
+    function primeMark() {
+      const cand = pickMark();
+      const img = new Image();
+      img.onload = img.onerror = () => { nextMark = cand; };
+      img.src = cand;
+    }
+
+    function rollMark() {
+      const src = nextMark || pickMark();
+      logo.src = src;
+      currentMark = src;
+      nextMark = null;
+      primeMark();
+    }
+
+    primeMark();
+    rollMark();
+    navLinks.forEach((link) => link.addEventListener("click", rollMark));
+  })();
 
   if (page === "words" || page === "book") {
     navLinks.forEach((link) => {

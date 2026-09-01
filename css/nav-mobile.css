@@ -48,6 +48,10 @@
     white-space: nowrap;
   }
 
+  .site-nav__logo {
+    height: 32px;
+  }
+
   /* "About" duplicates where "holo words" already lands (the about panel,
      just scrolled to its top instead of the intro) — dropped here so the
      other five items (including book case, previously pushed off the edge

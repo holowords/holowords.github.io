@@ -81,8 +81,33 @@
   font-size: clamp(32px, 5vw, 56px);
   font-weight: 700;
   letter-spacing: -0.02em;
-  color: #000;
+  color: #333333;
   margin: 0;
+}
+
+/* Same logo-as-"o" treatment as the hero mark (see .identity-mark__glyph).
+   Here the "o" is a little planet spinning like a globe non-stop; the
+   eyebrow-globe script in index.html swaps it to a random variant from
+   image/Logo/ once per turn, at the edge-on moment where the swap can't
+   be seen — so it keeps morphing with no pause between changes. */
+.about-intro__eyebrow-glyph {
+  height: 0.78em;
+  width: auto;
+  margin: 0 0.03em;
+  vertical-align: -0.06em;
+  will-change: transform;
+  animation: about-eyebrow-globe 1.2s linear infinite;
+}
+
+@keyframes about-eyebrow-globe {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-intro__eyebrow-glyph {
+    animation: none;
+  }
 }
 
 .select-highlight--welcome {
@@ -202,9 +227,19 @@
   font-size: clamp(48px, 9vw, 120px);
   font-weight: 700;
   letter-spacing: -0.02em;
-  color: #000;
+  color: #333333;
   margin: 0;
   line-height: 1;
+}
+
+/* The logo mark standing in for the "o" in "holo" — sized to the
+   surrounding lowercase letters and nudged down so its body sits on the
+   x-height while the star pokes above the ascenders. */
+.identity-mark__glyph {
+  height: 0.78em;
+  width: auto;
+  margin: 0 0.03em;
+  vertical-align: -0.06em;
 }
 
 .identity-mark.typing::after {

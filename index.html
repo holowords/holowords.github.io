@@ -6,7 +6,7 @@
   <title>holo words</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Manrope:wght@700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Arimo:wght@400;500;600;700&family=Gowun+Dodum&family=Manrope:wght@700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/home.css" />
   <link rel="stylesheet" href="css/work.css" />
@@ -38,7 +38,7 @@
       <button class="about-scroll-cue" id="about-scroll-cue" type="button" aria-label="다음 내용 보기">⌄</button>
     </div>
     <div class="about-intro" id="about-intro">
-      <p class="about-intro__eyebrow">holo words</p>
+      <p class="about-intro__eyebrow">h<img class="about-intro__eyebrow-glyph" src="image/Logo/로고_2.png" alt="o" />lo words</p>
       <div class="select-highlight select-highlight--welcome">
         <p class="about-intro__welcome" id="about-welcome">안녕하세요. 홀로둥이의 단어에 오신 걸 환영합니다.</p>
       </div>
@@ -148,14 +148,25 @@
 
   <script>
     (() => {
-      function typeText(el, text, speed, onDone) {
+      // `glyph`, when given as { index, src, alt }, swaps the character at
+      // that position for an <img> as it's typed — used for the logo mark
+      // standing in for the "o" in "holo".
+      function typeText(el, text, speed, onDone, glyph) {
         const chars = Array.from(text);
         el.textContent = "";
         el.classList.add("typing");
 
         let i = 0;
         const timer = setInterval(() => {
-          el.textContent += chars[i];
+          if (glyph && i === glyph.index) {
+            const img = document.createElement("img");
+            img.src = glyph.src;
+            img.alt = glyph.alt || chars[i];
+            img.className = "identity-mark__glyph";
+            el.appendChild(img);
+          } else {
+            el.appendChild(document.createTextNode(chars[i]));
+          }
           i++;
           if (i >= chars.length) {
             clearInterval(timer);
@@ -197,13 +208,17 @@
       // the moment it's called, and sub's turn doesn't come until mark
       // finishes — without this its full text would sit on screen (a
       // leftover from the previous lap) while mark is mid-retype.
+      // markText is "holo words" — index 1 is the "o" in "holo", drawn as
+      // the logo mark (image/Logo/로고_2.png) instead of a glyph.
+      const markGlyph = { index: 1, src: "image/Logo/로고_2.png", alt: "o" };
+
       function runHeroTyping() {
         sub.textContent = "";
         typeText(mark, markText, 220, () => {
           typeText(sub, subText, 120, () => {
             setTimeout(runHeroTyping, 1800);
           });
-        });
+        }, markGlyph);
       }
       runHeroTyping();
 
@@ -232,6 +247,72 @@
       glossaryToggle.addEventListener("click", () => {
         const open = glossary.classList.toggle("open");
         glossaryToggle.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+    })();
+  </script>
+  <script>
+    (() => {
+      /* The "o" in the About intro's "holo words" is a little planet that
+         spins like a globe non-stop (CSS: .about-intro__eyebrow-glyph). It
+         swaps to a different random variant from image/Logo/ at every
+         edge-on moment — twice per full turn — so each face that comes into
+         view is a new planet and the same one is never shown twice in a
+         row. All variants are preloaded up front so a swap never stalls. */
+      const eyebrow = document.querySelector(".about-intro__eyebrow");
+      const glyph = eyebrow && eyebrow.querySelector(".about-intro__eyebrow-glyph");
+      if (!glyph) return;
+
+      const SPIN_MS = 1200; // keep in sync with the CSS animation duration
+      const LOGOS = [
+        "image/Logo/로고_2.png",
+        "image/Logo/Artboard 72x.png",
+        "image/Logo/Artboard 7 copy2x.png",
+        "image/Logo/Artboard 7 copy 22x.png",
+        "image/Logo/Artboard 7 copy 32x.png",
+        "image/Logo/Artboard 7 copy 42x.png",
+        "image/Logo/Artboard 7 copy 52x.png",
+        "image/Logo/Artboard 7 copy 62x.png",
+        "image/Logo/Artboard 7 copy 72x.png",
+        "image/Logo/Artboard 7 copy 82x.png",
+        "image/Logo/Artboard 7 copy 92x.png",
+        "image/Logo/Artboard 7 copy 102x.png",
+        "image/Logo/Artboard 7 copy 112x.png",
+        "image/Logo/Artboard 7 copy 122x.png",
+        "image/Logo/Artboard 7 copy 132x.png",
+        "image/Logo/Artboard 7 copy 142x.png",
+        "image/Logo/Artboard 7 copy 152x.png",
+        "image/Logo/Artboard 7 copy 162x.png",
+        "image/Logo/Artboard 7 copy 172x.png",
+        "image/Logo/Artboard 7 copy 182x.png",
+      ];
+
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      let current = glyph.getAttribute("src");
+
+      // Preload every variant once — swaps then come straight from cache.
+      LOGOS.forEach((src) => { const img = new Image(); img.src = src; });
+
+      function swap() {
+        if (LOGOS.length < 2) return;
+        let next;
+        do {
+          next = LOGOS[Math.floor(Math.random() * LOGOS.length)];
+        } while (next === current);
+        glyph.src = next;
+        current = next;
+      }
+
+      if (reduceMotion) {
+        window.setInterval(swap, 4000);
+        return;
+      }
+
+      // Swap at both edge-on points of each turn (~90deg and ~270deg), where
+      // the planet is a thin sliver and the change can't be seen — so every
+      // face that rotates into view is a fresh planet.
+      glyph.addEventListener("animationiteration", () => {
+        window.setTimeout(swap, SPIN_MS * 0.25);
+        window.setTimeout(swap, SPIN_MS * 0.75);
       });
     })();
   </script>

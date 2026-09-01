@@ -49,30 +49,65 @@ a {
   backdrop-filter: blur(6px);
   border-bottom: 1px solid #e5e0d0;
   z-index: 1000;
+  font-family: "Arimo", sans-serif;
 }
 
 .site-nav__links {
   display: flex;
-  align-items: center;
-  gap: 18px;
+  align-items: flex-end;
+  gap: 15px;
 }
 
 .site-nav a {
-  font-size: 14px;
+  font-family: "Arimo", sans-serif;
+  font-size: 13.5px;
+  font-weight: 400;
   letter-spacing: 0.02em;
-  padding: 8px 4px 4px;
+  color: #696969;
+  padding: 8px 4px 2px;
   border-bottom: 2px solid transparent;
   outline: none;
-  transition: border-color 0.2s ease, opacity 0.2s ease;
+  transition: border-color 0.2s ease, color 0.2s ease, font-weight 0.2s ease;
 }
 
-.site-nav a:hover {
+/* Nudge the text items up off the logo's bottom edge (logo itself stays put). */
+.site-nav__links a:not(#nav-holo-words) {
+  margin-bottom: 5px;
+}
+
+.site-nav a:hover,
+.site-nav a:focus-visible {
+  color: #333333;
   border-bottom-color: var(--ink);
+  font-weight: 600;
 }
 
 .site-nav a.active {
+  color: #333333;
   border-bottom-color: var(--ink);
-  font-weight: 600;
+  font-weight: 700;
+}
+
+/* "holo words" is a logo image, not text — drop the text link's padding /
+   underline treatment. The mark itself is a random planet from image/Logo/
+   that nav.js rerolls on every page load and every nav click. */
+#nav-holo-words {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  border-bottom: none;
+}
+
+#nav-holo-words:hover,
+#nav-holo-words:focus-visible,
+#nav-holo-words.active {
+  border-bottom-color: transparent;
+}
+
+.site-nav__logo {
+  display: block;
+  height: 40px;
+  width: auto;
 }
 
 .nav-search-wrap {
@@ -93,7 +128,7 @@ body.lightbox-open .nav-search-wrap {
 .nav-search {
   display: flex;
   align-items: stretch;
-  height: 34px;
+  height: 32px;
   flex-shrink: 0;
   background: #fff;
   border: 1px solid var(--ink);
@@ -109,7 +144,7 @@ body.lightbox-open .nav-search-wrap {
   padding: 0 12px;
   font: inherit;
   font-family: "Gowun Dodum", sans-serif;
-  font-size: 12px;
+  font-size: 11.5px;
   color: var(--ink);
   outline: none;
 }
@@ -126,7 +161,7 @@ body.lightbox-open .nav-search-wrap {
   padding: 0 14px;
   font: inherit;
   font-family: "Gowun Dodum", sans-serif;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 700;
   color: var(--ink);
   cursor: pointer;
