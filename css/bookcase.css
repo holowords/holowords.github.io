@@ -13,6 +13,13 @@
   display: none;
   background: var(--ink);
   padding: 0;
+  /* Reached by a real fragment navigation (index.html#bookcase from the
+     nav on book.html / words.html), so the browser tries to scroll this
+     section into view. Without this it aligns the section's top to y=0,
+     tucking the search box + zoom controls up under the fixed nav; the
+     offset stops the scroll flush with the nav's bottom edge instead,
+     i.e. exactly where the section already sits at scrollTop 0. */
+  scroll-margin-top: var(--header-offset);
 }
 
 #bookcase.active {

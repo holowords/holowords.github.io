@@ -8,6 +8,10 @@
   outline: none;
   display: none;
   position: relative;
+  /* Same as #bookcase: index.html#work is a real fragment navigation from
+     the nav, so keep the browser's scroll-into-view flush with the fixed
+     nav's bottom edge rather than letting it hide the wall's top row. */
+  scroll-margin-top: var(--header-offset);
   background-color: #e7e7e4;
   /* Same dashed grid as #about, so the two tabs read as one consistent
      "wall" surface. */

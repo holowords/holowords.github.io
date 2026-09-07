@@ -157,6 +157,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   showRoute(routeFromHash());
 
+  /* Landing here via a real fragment navigation (e.g. tapping "book case"
+     on book.html / words.html loads index.html#bookcase) makes the browser
+     scroll the target section into view. It's display:none until showRoute
+     above activates it, so depending on timing the browser can still leave
+     the window nudged down with that section's own top-pinned controls
+     (bookcase's search + zoom, work's icon row) hidden under the fixed nav.
+     These are tabs, not scroll anchors — snap the window back to the top.
+     scroll-margin-top on the sections themselves handles the well-behaved
+     path; this is the belt-and-braces for the load-time re-scroll. */
+  if (location.hash) {
+    const pinTop = () => window.scrollTo(0, 0);
+    pinTop();
+    requestAnimationFrame(pinTop);
+    window.addEventListener("load", pinTop, { once: true });
+  }
+
   navLinks.forEach((link) => {
     const id = link.dataset.nav;
     if (!panelIds.includes(id)) return; // Words/Book links navigate to another page as-is.
