@@ -22,6 +22,8 @@ body[data-page="book"] .site-nav {
   justify-content: center;
   gap: 28px;
   padding: 24px 24px 72px;
+  /* Anchors the shared .site-footer credit line (see css/base.css). */
+  position: relative;
 }
 
 .book-cover-launch[hidden] {

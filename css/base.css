@@ -185,3 +185,64 @@ body.lightbox-open .nav-search-wrap {
   flex-shrink: 0;
 }
 
+/* ---------------------------------------------------------------------- */
+/* Shared credit line — injected at the bottom of every tab by            */
+/* js/site-footer.js. Small and faint, one horizontal line.              */
+/* ---------------------------------------------------------------------- */
+
+.site-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: 7px;
+  padding: 32px 24px 20px;
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #8a8a88;
+  text-align: center;
+  /* Where the line overlaps a scroll area (the Bookcase shelf's horizontal
+     scrollbar, a tall Book page), only the Instagram link should catch
+     clicks — everything behind the rest of the line stays usable. */
+  pointer-events: none;
+}
+
+.site-footer__sep {
+  color: #bdbdba;
+}
+
+.site-footer a {
+  color: inherit;
+  text-decoration: none;
+  pointer-events: auto;
+}
+
+.site-footer a:hover {
+  text-decoration: underline;
+}
+
+/* #bookcase / the Book page never scroll vertically — pin the line to the
+   bottom of the tab instead of letting it sit in flow (where #bookcase's
+   overflow:hidden would clip it, and the Book page's centered flex layout
+   would float it into the middle). Both parents are position:relative. */
+#bookcase .site-footer,
+.book-page .site-footer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 6px;
+  z-index: 6;
+}
+
+/* Both of those tabs sit on a near-black background. */
+#bookcase .site-footer,
+body[data-page="book"] .site-footer {
+  color: rgba(245, 239, 224, 0.34);
+}
+
+#bookcase .site-footer__sep,
+body[data-page="book"] .site-footer__sep {
+  color: rgba(245, 239, 224, 0.22);
+}
+

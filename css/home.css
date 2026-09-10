@@ -171,40 +171,6 @@
   text-align: left;
 }
 
-/* Contact / credit line, pinned to the very bottom of the About tab:
-   small grey text on a single horizontal line. */
-.about-contact {
-  position: absolute;
-  left: 24px;
-  bottom: 16px;
-  pointer-events: none;
-}
-
-.about-contact__lines {
-  display: flex;
-  flex-direction: row;
-  align-items: baseline;
-  gap: 7px;
-  font-family: "Gowun Dodum", sans-serif;
-  font-size: 11px;
-  line-height: 1.5;
-  color: #8a8a88;
-  pointer-events: auto;
-}
-
-.about-contact__sep {
-  color: #bdbdba;
-}
-
-.about-contact__lines a {
-  color: inherit;
-  text-decoration: none;
-}
-
-.about-contact__lines a:hover {
-  text-decoration: underline;
-}
-
 .about-glossary__toggle {
   display: inline-flex;
   align-items: center;
