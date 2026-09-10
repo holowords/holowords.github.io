@@ -1,35 +1,34 @@
 /* ---------------------------------------------------------------------- */
-/* Mobile: search box + word count move to a white bar under the nav      */
+/* Mobile: search collapses to a magnifier + word count in the menu bar;  */
+/* tapping it drops the search box down under the nav like a toggle.       */
 /* ---------------------------------------------------------------------- */
 
 @media (max-width: 640px) {
-  /* Fixed, explicit sizing (not "auto") so this bar's real height always
-     matches --mobile-topbar-height below — otherwise it can grow taller
-     than the reserved space and overlap the page content under it. */
-  body:not([data-page="work-detail"]):not([data-page="book"]) {
-    --mobile-topbar-height: 50px;
-    --header-offset: calc(var(--nav-height) + var(--mobile-topbar-height));
-    padding-top: var(--header-offset);
+  /* The search box no longer sits in a permanent bar under the nav — it's
+     collapsed behind the magnifier that's the last item in the menu bar
+     (see .site-nav__search below), available on every tab. When it's open,
+     the whole page pushes down by the bar's height so nothing is hidden
+     under it (rather than the bar floating over the content). Bumping
+     --header-offset does it everywhere at once: base.css's body padding-top,
+     every section's calc(100vh - --header-offset) height, and the words
+     page's sticky offsets all follow. */
+  body {
+    --mobile-search-h: 50px;
+    transition: padding-top 0.18s ease;
   }
 
-  /* bookcase tab: no search bar, so no reserved space for it either —
-     otherwise its dark panel would start with an empty white gap under
-     the nav where the bar used to be. */
-  body:not([data-page="work-detail"]):not([data-page="book"]).mobile-search-hidden {
-    --mobile-topbar-height: 0px;
+  body.mobile-search-open:not([data-page="work-detail"]) {
+    --header-offset: calc(var(--nav-height) + var(--mobile-search-h));
   }
 
-  body.mobile-search-hidden .nav-search-wrap {
-    display: none;
+  #about,
+  #work,
+  #bookcase {
+    transition: height 0.18s ease;
   }
 
-  /* The search bar sits flush under the nav here (see .nav-search-wrap's
-     own top offset) with the same background — a border on the nav's own
-     bottom edge just read as a seam between the two, so only the search
-     bar's border-bottom below closes off the combined strip. */
   .site-nav {
     padding: 0 16px;
-    border-bottom: none;
   }
 
   .site-nav__links {
@@ -54,37 +53,75 @@
 
   /* "About" duplicates where "holo words" already lands (the about panel,
      just scrolled to its top instead of the intro) — dropped here so the
-     other five items (including book case, previously pushed off the edge
-     entirely) all fit without wrapping or scrolling on a standard phone
-     width. */
+     rest (including book case, and now the search toggle) fit without
+     wrapping on a standard phone width; the row still scrolls sideways if
+     it has to. */
   #nav-about {
     display: none;
   }
 
+  /* Search toggle: the last item in the menu bar — a magnifier with the
+     word-count total beside it, small. Tapping it drops .nav-search-wrap
+     down under the nav (see below). */
+  .site-nav__search {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+    margin-bottom: 5px;
+    padding: 4px 2px 2px;
+    border: none;
+    background: none;
+    color: #696969;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .site-nav__search[aria-expanded="true"] {
+    color: #333333;
+  }
+
+  .site-nav__search-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  .site-nav__search-count {
+    font-size: 10.5px;
+    color: #999;
+  }
+
+  /* Drop-down search bar: hidden until the toggle sets body.mobile-search-open.
+     It sits flush under the nav; the body's padding-top grows by the same
+     --mobile-search-h at the same time (see above), so the page content
+     slides down to meet it instead of being covered. */
   .nav-search-wrap {
     position: fixed;
     top: var(--nav-height);
     left: 0;
     right: 0;
-    height: var(--mobile-topbar-height, 50px);
+    height: var(--mobile-search-h, 50px);
+    box-sizing: border-box;
     flex-direction: row;
-    /* Top-aligned with a small top pad instead of centered — the extra
-       height below (see --mobile-topbar-height) all becomes bottom
-       breathing room instead of splitting evenly. */
-    align-items: flex-start;
+    align-items: center;
     justify-content: center;
     gap: 10px;
-    padding: 5px 16px 0;
-    /* Same material as .site-nav (see there), so the two bars read as one
-       continuous strip rather than two different-toned ones stacked. */
-    background: rgba(255, 255, 255, 0.92);
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(6px);
     border-bottom: 1px solid #e5e0d0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s ease;
   }
 
-  /* Fills whatever width is left after the count (like a mobile browser's
-     own address bar — it grows/shrinks with the viewport rather than
-     sitting at one fixed width). */
+  body.mobile-search-open .nav-search-wrap {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Fills whatever width is left (like a mobile browser's address bar). */
   .nav-search {
     width: auto;
     flex: 1 1 auto;
@@ -98,18 +135,9 @@
     min-width: 0;
   }
 
+  /* The total moved up next to the menu-bar magnifier — no need to repeat
+     it inside the drop-down. */
   .nav-search__count {
-    flex-shrink: 0;
-    line-height: 16px;
-    text-align: right;
-  }
-
-  /* Book's mobile page-flip viewer already fills the space right under the
-     nav (see body:not(...)'s --mobile-topbar-height exclusion for
-     data-page="book") — showing the bar here on a phone would float over
-     it with no reserved room. Desktop is unaffected: this is the only
-     place the bar is hidden for this page. */
-  body[data-page="book"] .nav-search-wrap {
     display: none;
   }
 

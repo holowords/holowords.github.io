@@ -110,6 +110,13 @@ a {
   width: auto;
 }
 
+/* Mobile-only: collapses the search box behind a magnifier in the menu bar
+   (see css/nav-mobile.css). On desktop the box is always visible, so the
+   toggle is hidden. */
+.site-nav__search {
+  display: none;
+}
+
 .nav-search-wrap {
   position: fixed;
   top: 0;

@@ -6,6 +6,8 @@
   const searchForm = document.getElementById("search-box");
   const searchInput = document.getElementById("search-input");
   const wordCount = document.getElementById("word-count");
+  // Mobile shows the same total next to the menu-bar magnifier (see nav.js).
+  const navCount = document.getElementById("nav-search-count");
   if (!searchForm || !searchInput || !wordCount) return;
 
   searchForm.addEventListener("submit", (e) => {
@@ -20,7 +22,9 @@
     // title (see js/words.js for the matching count on that page).
     const bookCount = typeof BOOK_ENTRY_TITLES !== "undefined" ? Object.keys(BOOK_ENTRY_TITLES).length : 0;
     const bookcaseCount = typeof BOOKCASE_ITEMS !== "undefined" ? BOOKCASE_ITEMS.length : 0;
-    wordCount.textContent = `총 ${words.length + bookCount + bookcaseCount}개`;
+    const total = `총 ${words.length + bookCount + bookcaseCount}개`;
+    wordCount.textContent = total;
+    if (navCount) navCount.textContent = total;
   } catch (err) {
     console.error(err);
   }

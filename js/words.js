@@ -76,6 +76,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const searchForm = document.getElementById("search-box");
   const searchInput = document.getElementById("search-input");
   const wordCount = document.getElementById("word-count");
+  // Mobile shows the same total next to the menu-bar magnifier (see nav.js).
+  const navCount = document.getElementById("nav-search-count");
 
   const keywordCloud = document.getElementById("keyword-cloud");
   const keywordResults = document.getElementById("keyword-results");
@@ -148,7 +150,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     // what's listed on this page.
     const bookCount = typeof BOOK_ENTRY_TITLES !== "undefined" ? Object.keys(BOOK_ENTRY_TITLES).length : 0;
     const bookcaseCount = typeof BOOKCASE_ITEMS !== "undefined" ? BOOKCASE_ITEMS.length : 0;
-    wordCount.textContent = `총 ${words.length + bookCount + bookcaseCount}개`;
+    const total = `총 ${words.length + bookCount + bookcaseCount}개`;
+    wordCount.textContent = total;
+    if (navCount) navCount.textContent = total;
   } catch (err) {
     indexContent.textContent = "구글 드라이브에서 단어를 불러오지 못했습니다.";
     console.error(err);

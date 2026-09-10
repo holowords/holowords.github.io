@@ -22,6 +22,20 @@
       <a href="index.html#work" data-nav="work">work</a>
       <a href="book.html" data-nav="book">book</a>
       <a href="index.html#bookcase" data-nav="bookcase">book case</a>
+      <button
+        class="site-nav__search"
+        id="nav-search-toggle"
+        type="button"
+        aria-label="검색"
+        aria-expanded="false"
+        aria-controls="search-box"
+      >
+        <svg class="site-nav__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="7" />
+          <line x1="16.5" y1="16.5" x2="21" y2="21" />
+        </svg>
+        <span class="site-nav__search-count" id="nav-search-count" aria-hidden="true"></span>
+      </button>
     </div>
   `;
 })();
@@ -30,6 +44,42 @@
 document.addEventListener("DOMContentLoaded", () => {
   const navLinks = document.querySelectorAll(".site-nav a");
   const page = document.body.dataset.page;
+
+  /* Mobile: the search box is collapsed behind a magnifier as the last item
+     in the menu bar (see .site-nav__search in css/nav-mobile.css). Tapping
+     it drops the .nav-search-wrap bar down under the nav like a toggle;
+     tapping away, Escape, or any nav link closes it again. On desktop the
+     button is display:none and the bar is always visible, so this is inert
+     there. */
+  (() => {
+    const searchToggle = document.getElementById("nav-search-toggle");
+    const searchWrap = document.querySelector(".nav-search-wrap");
+    const searchField = document.getElementById("search-input");
+    if (!searchToggle || !searchWrap) return;
+
+    function setSearchOpen(open) {
+      document.body.classList.toggle("mobile-search-open", open);
+      searchToggle.setAttribute("aria-expanded", open ? "true" : "false");
+      if (open && searchField) searchField.focus();
+    }
+
+    searchToggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      setSearchOpen(!document.body.classList.contains("mobile-search-open"));
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!document.body.classList.contains("mobile-search-open")) return;
+      if (searchWrap.contains(e.target) || searchToggle.contains(e.target)) return;
+      setSearchOpen(false);
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") setSearchOpen(false);
+    });
+
+    navLinks.forEach((link) => link.addEventListener("click", () => setSearchOpen(false)));
+  })();
 
   /* The menubar "holo words" mark is a random planet from image/Logo/
      (every file except 0_로고_메뉴바.png) — a fresh one on every page load
@@ -127,10 +177,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     if (homeLink) homeLink.classList.toggle("active", id === "about" && aboutSubId !== "nav-about");
     if (aboutLink) aboutLink.classList.toggle("active", id === "about" && aboutSubId === "nav-about");
-    // Mobile-only (see .nav-search-wrap's media query): the search bar only
-    // makes sense next to holo words/About, Words, Work — bookcase has its
-    // own dark full-bleed layout with no room for it.
-    document.body.classList.toggle("mobile-search-hidden", id === "bookcase");
   }
 
   /* "About" links to #about-intro (not #about) specifically so that
