@@ -6,7 +6,7 @@
   max-width: none;
   margin: 0;
   padding: 64px 60px 160px;
-  background: #e7e7e4;
+  background: var(--surface-muted);
   position: relative;
 }
 
@@ -26,7 +26,7 @@
 }
 
 /* .words-page's own padding is the only part left showing the page's
-   #e7e7e4 background (a top/left/right gutter around this) — the tab
+   --surface-muted background (a top/left/right gutter around this) — the tab
    content itself, index column included, stays white edge-to-edge and for
    its whole (very tall, scrollable) height, rather than just near the top
    of the viewport or leaving the centered .words-view--index's auto-margin
@@ -44,8 +44,8 @@
   gap: 0;
   margin-bottom: 40px;
   padding-top: 16px;
-  background: #e7e7e4;
-  border-bottom: 1px solid #e5e0d0;
+  background: var(--surface-muted);
+  border-bottom: 1px solid var(--grid-line);
 }
 
 /* .words-tabs's margin-bottom (the 40px gap before .words-index picks up
@@ -87,18 +87,18 @@
   padding: 10px 44px 14px 18px;
   margin-bottom: -1px;
   cursor: pointer;
-  color: #1a1a1a;
+  color: var(--ink);
   opacity: 0.5;
   position: relative;
   transition: opacity 0.2s ease, box-shadow 0.15s ease;
 }
 
 .words-tab[data-tab="all"] {
-  background: #2c90f4;
+  background: var(--accent-link);
 }
 
 .words-tab[data-tab="search"] {
-  background: #ed6cef;
+  background: var(--accent-search);
 }
 
 .words-tab:hover {
@@ -111,7 +111,7 @@
 }
 
 .words-placeholder {
-  color: #999;
+  color: var(--text-muted);
   font-size: 15px;
 }
 
@@ -139,7 +139,7 @@
 
 .words-search-banner__clear {
   font-size: 13px;
-  color: #888;
+  color: var(--text-tertiary);
   text-decoration: underline;
   flex-shrink: 0;
 }
@@ -233,7 +233,7 @@
 .words-grid__image-wrap {
   position: relative;
   display: block;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   overflow: hidden;
   transition: transform 0.2s ease;
 }
@@ -260,7 +260,7 @@
   width: 100%;
   aspect-ratio: 1 / 1;
   object-fit: cover;
-  background: #f2efe6;
+  background: var(--cream);
 }
 
 .words-grid__caption {
@@ -272,7 +272,7 @@
   font-family: "Gowun Dodum", sans-serif;
   font-size: 16px;
   color: var(--ink);
-  background-image: linear-gradient(120deg, #fff176 0%, #fff176 100%);
+  background-image: linear-gradient(120deg, var(--highlight) 0%, var(--highlight) 100%);
   background-repeat: no-repeat;
   background-size: 0% 45%;
   background-position: 0 88%;
@@ -348,7 +348,7 @@
 /* max-width + auto margin centers the index+list row within
    .words-panel-view (below) — kept here, not on the panel itself, so the
    panel's own white background can still span the page's full width
-   behind this centered content instead of showing #e7e7e4 in the
+   behind this centered content instead of showing --surface-muted in the
    auto-margin gutters on each side. */
 .words-view--index {
   display: flex;
@@ -387,11 +387,11 @@
   font: inherit;
   font-size: 15px;
   font-weight: 700;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   background: none;
   border: none;
   cursor: pointer;
-  color: #999;
+  color: var(--text-muted);
   overflow: hidden;
   max-height: 40px;
   opacity: 1;
@@ -406,7 +406,7 @@
 
 .words-index__link.active {
   color: var(--ink);
-  background: #e7e7e4;
+  background: var(--surface-muted);
 }
 
 /* Consonants already scrolled past rise up and vanish, instead of the list
@@ -478,7 +478,7 @@
 }
 
 .word-item__label {
-  background-image: linear-gradient(120deg, #fff176 0%, #fff176 100%);
+  background-image: linear-gradient(120deg, var(--highlight) 0%, var(--highlight) 100%);
   background-repeat: no-repeat;
   background-size: 0% 45%;
   background-position: 0 88%;
@@ -557,7 +557,7 @@
   margin-top: 16px;
   font-size: 14px;
   line-height: 1.8;
-  color: #333;
+  color: var(--text-strong);
   white-space: pre-line;
 }
 
@@ -565,7 +565,7 @@
   display: block;
   width: 100%;
   height: auto;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
 }
 
 .word-panel__title {
@@ -590,7 +590,7 @@
 
 .word-panel__byline {
   font-size: 13px;
-  color: #888;
+  color: var(--text-tertiary);
   text-align: center;
 }
 

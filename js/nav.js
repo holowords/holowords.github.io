@@ -22,6 +22,7 @@
       <a href="index.html#work" data-nav="work">work</a>
       <a href="book.html" data-nav="book">book</a>
       <a href="index.html#bookcase" data-nav="bookcase">book case</a>
+      <a href="index.html#community" data-nav="community">community</a>
       <button
         class="site-nav__search"
         id="nav-search-toggle"
@@ -152,7 +153,7 @@ document.addEventListener("DOMContentLoaded", () => {
   /* Home page: About / Work / bookcase are tabs, not scroll-stacked
      sections — only one is ever visible, switched by clicking nav links
      (or landing on a #hash), never by scrolling past one into the next. */
-  const panelIds = ["about", "work", "bookcase"];
+  const panelIds = ["about", "work", "bookcase", "community"];
   const panels = panelIds.map((id) => document.getElementById(id)).filter(Boolean);
 
   if (!panels.length) return;

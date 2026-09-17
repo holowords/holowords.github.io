@@ -10,7 +10,7 @@
    Runs synchronously from the end of <body>, same as nav.js — the DOM is
    already parsed, nothing has painted. */
 (() => {
-  const TARGETS = ["#about", "#work", "#bookcase", ".words-page", ".book-page"];
+  const TARGETS = ["#about", "#work", "#bookcase", "#community", ".words-page", ".book-page"];
 
   function build() {
     const footer = document.createElement("footer");

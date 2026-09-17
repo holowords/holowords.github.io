@@ -84,7 +84,7 @@
   height: 34px;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   overflow: hidden;
 }
 
@@ -303,7 +303,7 @@
   display: block;
   width: 160px;
   margin: 8px auto 20px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
 }
 
@@ -317,7 +317,7 @@
 
 .bookcase-panel__byline {
   font-size: 13px;
-  color: #888;
+  color: var(--text-tertiary);
   text-align: center;
   margin: 0 0 6px;
 }
@@ -333,20 +333,20 @@
 .bookcase-panel__tag {
   font-size: 12px;
   padding: 4px 10px;
-  border-radius: 999px;
-  background: #f1efe9;
+  border-radius: var(--radius-pill);
+  background: var(--cream);
   color: #555;
 }
 
 .bookcase-panel__memo {
   font-size: 14px;
   line-height: 1.9;
-  color: #333;
+  color: var(--text-strong);
   white-space: pre-line;
 }
 
 .bookcase-panel__memo--empty {
-  color: #999;
+  color: var(--text-muted);
   text-align: center;
 }
 
@@ -380,8 +380,8 @@
   display: inline-block;
   font-size: 13px;
   padding: 4px 10px;
-  border-radius: 999px;
-  background: #f1efe9;
-  color: #888;
+  border-radius: var(--radius-pill);
+  background: var(--cream);
+  color: var(--text-tertiary);
 }
 

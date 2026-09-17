@@ -3,7 +3,7 @@
 /* ---------------------------------------------------------------------- */
 
 body[data-page="book"] {
-  background: #15130f;
+  background: var(--book-bg);
 }
 
 /* .site-nav's own background is a translucent white (see there) meant to
@@ -54,7 +54,7 @@ body[data-page="book"] .site-nav {
 .book-cover-launch__label {
   font-family: "Gowun Dodum", sans-serif;
   font-size: 15px;
-  color: #f5efe0;
+  color: var(--cream);
   opacity: 0.75;
   letter-spacing: 0.03em;
 }
@@ -112,13 +112,13 @@ body[data-page="book"] .site-nav {
    browser default fighting for the same space. */
 .book-index__link:hover,
 .book-index__link:focus {
-  color: #f5efe0;
+  color: var(--cream);
   background-color: rgba(245, 239, 224, 0.1);
 }
 
 .book-index__link.active {
-  color: #15130f;
-  background: #f5efe0;
+  color: var(--book-bg);
+  background: var(--cream);
   font-weight: 700;
 }
 
@@ -161,7 +161,7 @@ body[data-page="book"] .site-nav {
   border-radius: 50%;
   border: 1px solid rgba(245, 239, 224, 0.3);
   background: rgba(245, 239, 224, 0.06);
-  color: #f5efe0;
+  color: var(--cream);
   font-size: 20px;
   line-height: 1;
   cursor: pointer;
@@ -262,11 +262,11 @@ body[data-page="book"] .site-nav {
 .book-progress {
   font-family: "Gowun Dodum", sans-serif;
   font-size: 13px;
-  color: #f5efe0;
+  color: var(--cream);
   letter-spacing: 0.05em;
   background: rgba(245, 239, 224, 0.06);
   border: 1px solid rgba(245, 239, 224, 0.4);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   padding: 6px 14px;
   cursor: pointer;
   transition: background 0.2s ease, border-color 0.2s ease;
@@ -283,7 +283,7 @@ body[data-page="book"] .site-nav {
   gap: 6px;
   font-family: "Gowun Dodum", sans-serif;
   font-size: 13px;
-  color: #f5efe0;
+  color: var(--cream);
 }
 
 .book-progress-form[hidden] {
@@ -295,8 +295,8 @@ body[data-page="book"] .site-nav {
   width: 44px;
   background: rgba(245, 239, 224, 0.06);
   border: 1px solid rgba(245, 239, 224, 0.4);
-  border-radius: 8px;
-  color: #f5efe0;
+  border-radius: var(--radius-md);
+  color: var(--cream);
   font: inherit;
   padding: 6px 10px;
   text-align: right;
@@ -312,7 +312,7 @@ body[data-page="book"] .site-nav {
   border: none;
   font: inherit;
   font-size: 13px;
-  color: #f5efe0;
+  color: var(--cream);
   opacity: 0.5;
   border-bottom: 1px solid currentColor;
   padding: 0 0 1px;

@@ -1,0 +1,36 @@
+/* ---------------------------------------------------------------------- */
+/* Community tab — placeholder for now (준비중); the video/planet centerpiece */
+/* lives in git history (see the previous version of this file) to bring   */
+/* back once the tab is ready to launch.                                   */
+/* ---------------------------------------------------------------------- */
+
+#community {
+  height: calc(100vh - var(--header-offset));
+  overflow-y: auto;
+  outline: none;
+  display: none;
+  position: relative;
+  scroll-margin-top: var(--header-offset);
+  background: var(--surface-muted);
+}
+
+#community.active {
+  display: block;
+}
+
+.community-inner {
+  min-height: calc(100vh - var(--header-offset));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+}
+
+.community-placeholder {
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: clamp(20px, 3vw, 28px);
+  font-weight: 700;
+  color: var(--ink);
+  opacity: 0.35;
+  text-align: center;
+}

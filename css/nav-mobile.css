@@ -23,7 +23,8 @@
 
   #about,
   #work,
-  #bookcase {
+  #bookcase,
+  #community {
     transition: height 0.18s ease;
   }
 
@@ -72,13 +73,13 @@
     padding: 4px 2px 2px;
     border: none;
     background: none;
-    color: #696969;
+    color: var(--text-secondary);
     cursor: pointer;
     white-space: nowrap;
   }
 
   .site-nav__search[aria-expanded="true"] {
-    color: #333333;
+    color: var(--text-strong);
   }
 
   .site-nav__search-icon {
@@ -89,7 +90,7 @@
 
   .site-nav__search-count {
     font-size: 10.5px;
-    color: #999;
+    color: var(--text-muted);
   }
 
   /* Drop-down search bar: hidden until the toggle sets body.mobile-search-open.
@@ -110,7 +111,7 @@
     padding: 8px 16px;
     background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(6px);
-    border-bottom: 1px solid #e5e0d0;
+    border-bottom: 1px solid var(--grid-line);
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.18s ease;

@@ -5,9 +5,33 @@
 :root {
   --nav-height: 64px;
   --header-offset: var(--nav-height);
-  --cream: #f7f1de;
-  --grid-line: #c9c2ae;
+
+  /* Core neutrals */
   --ink: #1a1a1a;
+  --cream: #f5efe0;
+  --grid-line: #e5e0d0;
+  --surface-muted: #e7e7e4;
+
+  /* Book tab's dark reading mode — a separate near-black from --ink,
+     kept distinct rather than merged (see css/book.css). */
+  --book-bg: #15130f;
+
+  /* Text scale, darkest to lightest */
+  --text-strong: #333333;
+  --text-secondary: #696969;
+  --text-tertiary: #888;
+  --text-muted: #999;
+
+  /* Accent colors, one per role */
+  --accent-link: #2c90f4;
+  --accent-search: #ed6cef;
+  --highlight: #fff176;
+
+  /* Corner radius scale */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-pill: 999px;
 }
 
 * {
@@ -47,7 +71,7 @@ a {
   padding: 0 24px;
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(6px);
-  border-bottom: 1px solid #e5e0d0;
+  border-bottom: 1px solid var(--grid-line);
   z-index: 1000;
   font-family: "Arimo", sans-serif;
 }
@@ -63,7 +87,7 @@ a {
   font-size: 13.5px;
   font-weight: 400;
   letter-spacing: 0.02em;
-  color: #696969;
+  color: var(--text-secondary);
   padding: 8px 4px 2px;
   border-bottom: 2px solid transparent;
   outline: none;
@@ -77,13 +101,13 @@ a {
 
 .site-nav a:hover,
 .site-nav a:focus-visible {
-  color: #333333;
+  color: var(--text-strong);
   border-bottom-color: var(--ink);
   font-weight: 600;
 }
 
 .site-nav a.active {
-  color: #333333;
+  color: var(--text-strong);
   border-bottom-color: var(--ink);
   font-weight: 700;
 }
@@ -157,7 +181,7 @@ body.lightbox-open .nav-search-wrap {
 }
 
 .nav-search__input::placeholder {
-  color: #999;
+  color: var(--text-muted);
 }
 
 .nav-search__button {

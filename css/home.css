@@ -85,7 +85,7 @@
   font-size: clamp(32px, 5vw, 56px);
   font-weight: 700;
   letter-spacing: -0.02em;
-  color: #333333;
+  color: var(--text-strong);
   margin: 0;
 }
 
@@ -175,10 +175,10 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  border: 1px solid #1a1a1a;
+  border: 1px solid var(--ink);
   background: #fff;
   padding: 10px 16px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   font: inherit;
   font-family: "Gowun Dodum", sans-serif;
   font-size: 14px;
@@ -200,8 +200,8 @@
   bottom: calc(100% + 10px);
   width: min(380px, 80vw);
   background: #fff;
-  border: 1px solid #1a1a1a;
-  border-radius: 12px;
+  border: 1px solid var(--ink);
+  border-radius: var(--radius-lg);
   padding: 20px;
   font-family: "Gowun Dodum", sans-serif;
   font-size: 14px;
@@ -231,7 +231,7 @@
   font-size: clamp(48px, 9vw, 120px);
   font-weight: 700;
   letter-spacing: -0.02em;
-  color: #333333;
+  color: var(--text-strong);
   margin: 0;
   line-height: 1;
 }
