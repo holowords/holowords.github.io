@@ -1,7 +1,9 @@
 /* ---------------------------------------------------------------------- */
-/* Community tab — placeholder for now (준비중); the video/planet centerpiece */
-/* lives in git history (see the previous version of this file) to bring   */
-/* back once the tab is ready to launch.                                   */
+/* Community tab — a pannable/zoomable field of planet nodes (each node is */
+/* one person's word), modeled after interpretationleeum.com/ousssmos/.   */
+/* The dashed grid background sits on #community itself and never moves — */
+/* only .community-field (the planets) pans/zooms inside its viewport, so */
+/* the backdrop reads as a fixed "sky" you're looking out over. */
 /* ---------------------------------------------------------------------- */
 
 #community {
@@ -11,7 +13,12 @@
   display: none;
   position: relative;
   scroll-margin-top: var(--header-offset);
-  background: var(--surface-muted);
+  /* Same dashed grid as #about, tightened up (14px vs 22px) so the
+     community field reads a little denser than About's. */
+  background-color: #d9d9d8;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cline x1='40' y1='0' x2='40' y2='40' stroke='%23a0a09f' stroke-width='1' stroke-dasharray='2,3'/%3E%3Cline x1='0' y1='40' x2='40' y2='40' stroke='%23a0a09f' stroke-width='1' stroke-dasharray='2,3'/%3E%3C/svg%3E");
+  background-size: 14px 14px;
+  text-align: center;
 }
 
 #community.active {
@@ -21,16 +28,418 @@
 .community-inner {
   min-height: calc(100vh - var(--header-offset));
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 80px 24px;
+  padding: 90px 24px 60px;
+  gap: 28px;
 }
 
-.community-placeholder {
+/* ---------------------------------------------------------------------- */
+/* Info ("i") popup — reuses .page-info/.page-info__toggle/.page-info__panel */
+/* from css/work.css; only the positioning wrapper is community-specific.  */
+/* ---------------------------------------------------------------------- */
+
+.community-icons {
+  position: absolute;
+  top: 24px;
+  right: 40px;
+  z-index: 20;
+}
+
+.community-icons .page-info__panel {
+  text-align: left;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Intro copy                                                              */
+/* ---------------------------------------------------------------------- */
+
+.community-intro {
+  max-width: 640px;
+  margin: 0;
+}
+
+.community-intro__body {
   font-family: "Gowun Dodum", sans-serif;
-  font-size: clamp(20px, 3vw, 28px);
-  font-weight: 700;
+  font-size: clamp(14px, 1.6vw, 17px);
+  line-height: 1.8;
+  color: #000;
+  margin: 0;
+}
+
+.community-intro__footer {
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: clamp(13px, 1.4vw, 15px);
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin: 14px 0 0;
+}
+
+/* ---------------------------------------------------------------------- */
+/* The universe: a fixed viewport clipping a larger field of planet nodes. */
+/* ---------------------------------------------------------------------- */
+
+.community-universe {
+  position: relative;
+  width: min(920px, 100%);
+  height: clamp(360px, 54vh, 600px);
+}
+
+.community-universe__viewport {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.community-universe__viewport.dragging {
+  cursor: grabbing;
+}
+
+.community-field {
+  position: absolute;
+  inset: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+.community-zoom {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.community-zoom__btn {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  background: #fff;
   color: var(--ink);
-  opacity: 0.35;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+.community-zoom__btn:hover:not(:disabled) {
+  background: rgba(26, 26, 26, 0.08);
+}
+
+.community-zoom__btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Planet nodes — each is one of the logo planet variants (image/Logo/),  */
+/* star included, so a "dot" on the field is always recognizably the same */
+/* mark used everywhere else on the site, just a different texture per    */
+/* person. */
+/* ---------------------------------------------------------------------- */
+
+.community-node {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  width: var(--node-size, 56px);
+}
+
+.community-node__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.18));
+  transition: transform 0.2s ease;
+}
+
+.community-node:hover .community-node__img,
+.community-node:focus-visible .community-node__img {
+  transform: scale(1.12);
+}
+
+.community-node:focus-visible {
+  outline: 2px solid var(--accent-link);
+  outline-offset: 4px;
+  border-radius: 50%;
+}
+
+/* New submissions land with a little pop instead of just appearing. */
+.community-node--enter {
+  animation: community-node-pop 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes community-node-pop {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.3);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .community-node,
+  .community-node__img {
+    animation: none !important;
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+/* "나의 단어 남기기" — primary CTA pill, same visual language as          */
+/* .about-glossary__toggle. */
+/* ---------------------------------------------------------------------- */
+
+.community-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--ink);
+  background: #fff;
+  padding: 13px 26px;
+  border-radius: var(--radius-pill);
+  font: inherit;
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #000;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.community-cta:hover {
+  background: rgba(26, 26, 26, 0.06);
+  transform: translateY(-1px);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Shared modal shell (overlay + centered card) for both the word-detail   */
+/* popup and the leave-a-word form. */
+/* ---------------------------------------------------------------------- */
+
+.community-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  z-index: 1100;
+}
+
+.community-modal-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.community-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: min(420px, calc(100vw - 48px));
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+  background: #fff;
+  border-radius: var(--radius-lg);
+  padding: 32px 28px 28px;
+  transform: translate(-50%, -50%) scale(0.94);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 1200;
+  outline: none;
+  text-align: left;
+}
+
+.community-modal.open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, -50%) scale(1);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+}
+
+.community-modal__close {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  line-height: 1;
+  color: var(--ink);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Word-detail modal — opened by clicking a planet node.                   */
+/* ---------------------------------------------------------------------- */
+
+.community-word-modal__planet {
+  display: block;
+  width: 68px;
+  height: auto;
+  margin: 0 auto 16px;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.18));
+}
+
+.community-word-modal__nickname {
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 13px;
+  color: var(--text-tertiary);
   text-align: center;
+  margin: 0 0 6px;
+}
+
+.community-word-modal__word {
+  font-family: "Manrope", "Gowun Dodum", sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--text-strong);
+  margin: 0 0 16px;
+}
+
+.community-word-modal__story {
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 14px;
+  line-height: 1.85;
+  color: var(--text-strong);
+  white-space: pre-line;
+  margin: 0;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Leave-a-word form modal — opened by the CTA.                            */
+/* ---------------------------------------------------------------------- */
+
+.community-form-modal__title {
+  font-family: "Manrope", "Gowun Dodum", sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+  text-align: center;
+  margin: 0 0 24px;
+  color: var(--text-strong);
+}
+
+.community-form__field + .community-form__field {
+  margin-top: 22px;
+}
+
+.community-form__label {
+  display: block;
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-strong);
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+.community-form__hint {
+  display: block;
+  font-weight: 400;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.community-form__input,
+.community-form__textarea {
+  width: 100%;
+  border: 1px solid #d8d8d5;
+  border-radius: var(--radius-md);
+  background: var(--cream);
+  padding: 10px 12px;
+  font: inherit;
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 13.5px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.community-form__input:focus,
+.community-form__textarea:focus {
+  border-color: var(--ink);
+}
+
+.community-form__textarea {
+  resize: vertical;
+  min-height: 96px;
+  line-height: 1.7;
+}
+
+.community-form__count {
+  display: block;
+  text-align: right;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.community-form__submit {
+  display: block;
+  width: 100%;
+  margin-top: 26px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--ink);
+  color: #fff;
+  padding: 13px;
+  font: inherit;
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.community-form__submit:hover {
+  opacity: 0.88;
+}
+
+.community-form__status {
+  margin: 14px 0 0;
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 13px;
+  text-align: center;
+  color: var(--accent-link);
+}
+
+@media (max-width: 640px) {
+  .community-inner {
+    padding: 72px 18px 48px;
+    gap: 20px;
+  }
+
+  .community-icons {
+    top: 16px;
+    right: 18px;
+  }
+
+  .community-universe {
+    height: clamp(320px, 50vh, 480px);
+  }
+
+  .community-modal {
+    padding: 28px 20px 24px;
+  }
 }
