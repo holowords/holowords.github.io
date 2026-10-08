@@ -6,10 +6,13 @@
 /* same way the nav mark and About's spinning "o" already do.              */
 /*                                                                          */
 /* This is a static GitHub Pages site with no backend of its own (the      */
-/* Words page's images are the one exception, read-only from Drive) — so   */
-/* "나의 단어 남기기" submissions are saved to localStorage and only ever   */
-/* show up back to the same browser, not to other visitors. The nine seed  */
-/* entries below are placeholders standing in for real participation.      */
+/* Words page's images are the one exception, read-only from Drive). To    */
+/* make submissions visible to every visitor rather than just the author's */
+/* own browser, "나의 단어 남기기" also writes to a Google Sheet through a */
+/* Google Apps Script Web App — see js/community-config.js and            */
+/* backend/community-words-apps-script.gs. Until that URL is filled in,    */
+/* submissions just save to localStorage as before. The nine seed entries  */
+/* below are placeholders standing in for real participation.              */
 /* ---------------------------------------------------------------------- */
 (() => {
   const section = document.getElementById("community");
@@ -57,6 +60,8 @@
   ];
 
   const STORAGE_KEY = "holoCommunityWords";
+  const SHARED_SCRIPT_URL = (typeof COMMUNITY_CONFIG !== "undefined" && COMMUNITY_CONFIG.scriptUrl) || "";
+  const renderedIds = new Set(); // dedupes a submitter's own optimistic node against that same entry coming back from the shared sheet
 
   function loadSaved() {
     try {
@@ -109,6 +114,7 @@
 
   function buildNode(entry) {
     return {
+      id: entry.id || null,
       nickname: entry.nickname || "",
       word: entry.word,
       story: entry.story,
@@ -147,20 +153,44 @@
 
     field.appendChild(btn);
     placed.push({ x: node.x, y: node.y });
+    if (node.id) renderedIds.add(node.id);
     return btn;
   }
 
   SEED_WORDS.forEach((entry, i) => {
-    const node = buildNode({ ...entry, logo: LOGOS[i % LOGOS.length] });
+    const node = buildNode({ ...entry, id: `seed-${i}`, logo: LOGOS[i % LOGOS.length] });
     lastLogo = node.logo;
     renderNode(node);
   });
 
   const saved = loadSaved();
   saved.forEach((entry) => {
-    renderNode(entry);
-    lastLogo = entry.logo;
+    const node = buildNode(entry);
+    renderNode(node);
+    lastLogo = node.logo;
   });
+
+  /* Shared words from the Google Sheet, layered on top of the instant
+     seed+local render above. Skipped entirely (no request at all) when
+     SHARED_SCRIPT_URL is empty, i.e. the backend hasn't been set up yet. */
+  async function loadSharedWords() {
+    if (!SHARED_SCRIPT_URL) return;
+    try {
+      const res = await fetch(SHARED_SCRIPT_URL, { cache: "no-store" });
+      const list = await res.json();
+      if (!Array.isArray(list)) return;
+      list.forEach((entry) => {
+        if (entry.id && renderedIds.has(entry.id)) return;
+        const node = buildNode(entry);
+        renderNode(node);
+        lastLogo = node.logo;
+      });
+    } catch (err) {
+      // Backend unreachable (offline, URL not deployed yet, etc.) — the
+      // field still shows seeds + this browser's own local submissions.
+    }
+  }
+  loadSharedWords();
 
   /* ---------------------------------------------------------------------- */
   /* Pan + zoom — pointer events cover mouse drag, single-finger touch pan, */
@@ -409,6 +439,7 @@
     lastLogo = logo;
     const pos = pickPosition();
     const node = buildNode({
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       nickname,
       word,
       story,
@@ -423,6 +454,24 @@
     persistSaved(list);
 
     renderNode(node, { enter: true });
+
+    if (SHARED_SCRIPT_URL) {
+      const query = new URLSearchParams({
+        action: "submit",
+        id: node.id,
+        nickname: node.nickname,
+        word: node.word,
+        story: node.story,
+        logo: node.logo,
+        x: node.x,
+        y: node.y,
+        size: node.size,
+      });
+      // Fire-and-forget: the node above already rendered for this visitor,
+      // so a failed/offline write here just means other visitors won't see
+      // it yet — nothing in this browser's own experience depends on it.
+      fetch(`${SHARED_SCRIPT_URL}?${query.toString()}`, { cache: "no-store" }).catch(() => {});
+    }
 
     form.reset();
     countEl.textContent = "0 / 300";
