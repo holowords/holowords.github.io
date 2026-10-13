@@ -48,15 +48,15 @@
      (not randomized) positions/sizes so the field looks the same on every
      load; only the size varies per entry, the planets themselves stay put. */
   const SEED_WORDS = [
-    { nickname: "holo", word: "나만의 서사", story: "아주 조금씩 무엇이든 쌓아간다면 나만의 서사를 쓸 수 있을까.", x: 50, y: 44, size: 68 },
-    { nickname: "", word: "다정", story: "서툴러도 다정하게 건넨 말 한마디가 오늘 하루를 버티게 했다.", x: 76, y: 22, size: 54 },
-    { nickname: "모모", word: "괜찮아", story: "괜찮다는 말을 나에게 가장 많이 해주고 싶은 요즘이다.", x: 20, y: 30, size: 58 },
-    { nickname: "산책자", word: "쉼표", story: "마침표 대신 쉼표를 찍으며 천천히 걸어가 보기로 했다.", x: 85, y: 52, size: 50 },
-    { nickname: "노을", word: "온기", story: "차가운 손을 잡아준 그 온기를 오래도록 기억하고 싶다.", x: 14, y: 66, size: 64 },
-    { nickname: "둥이", word: "용기", story: "작은 용기 하나가 어제와는 다른 오늘을 만들어 주었다.", x: 62, y: 74, size: 56 },
-    { nickname: "별자리", word: "기다림", story: "기다림의 시간도 결국 나를 채워가는 과정이라 믿는다.", x: 37, y: 86, size: 48 },
-    { nickname: "라일락", word: "안녕", story: "안녕이라는 인사가 이렇게 다정할 수 있다는 걸 요즘 배운다.", x: 8, y: 46, size: 60 },
-    { nickname: "혼자", word: "그러려니", story: "그러려니, 하고 넘기는 연습이 나를 조금 더 자유롭게 해주었다.", x: 90, y: 84, size: 52 },
+    { nickname: "holo", word: "나만의 서사", story: "아주 조금씩 무엇이든 쌓아간다면 나만의 서사를 쓸 수 있을까.", x: 50, y: 44, size: 46 },
+    { nickname: "", word: "다정", story: "서툴러도 다정하게 건넨 말 한마디가 오늘 하루를 버티게 했다.", x: 76, y: 22, size: 36 },
+    { nickname: "모모", word: "괜찮아", story: "괜찮다는 말을 나에게 가장 많이 해주고 싶은 요즘이다.", x: 20, y: 30, size: 39 },
+    { nickname: "산책자", word: "쉼표", story: "마침표 대신 쉼표를 찍으며 천천히 걸어가 보기로 했다.", x: 85, y: 52, size: 33 },
+    { nickname: "노을", word: "온기", story: "차가운 손을 잡아준 그 온기를 오래도록 기억하고 싶다.", x: 14, y: 66, size: 43 },
+    { nickname: "둥이", word: "용기", story: "작은 용기 하나가 어제와는 다른 오늘을 만들어 주었다.", x: 62, y: 74, size: 38 },
+    { nickname: "별자리", word: "기다림", story: "기다림의 시간도 결국 나를 채워가는 과정이라 믿는다.", x: 37, y: 86, size: 32 },
+    { nickname: "라일락", word: "안녕", story: "안녕이라는 인사가 이렇게 다정할 수 있다는 걸 요즘 배운다.", x: 8, y: 46, size: 40 },
+    { nickname: "혼자", word: "그러려니", story: "그러려니, 하고 넘기는 연습이 나를 조금 더 자유롭게 해주었다.", x: 90, y: 84, size: 35 },
   ];
 
   const STORAGE_KEY = "holoCommunityWords";
@@ -148,7 +148,11 @@
       // (Enter/Space on a focused node), which has no pointer event to
       // intercept.
       if (dragMoved) return;
-      openWordModal(node);
+      if (!expanded) {
+        setExpanded(true);
+      } else {
+        openWordModal(node);
+      }
     });
 
     field.appendChild(btn);
@@ -309,8 +313,16 @@
     pointers.delete(e.pointerId);
     viewport.classList.remove("dragging");
 
-    if (e.type === "pointerup" && wasSinglePointer && pointers.size === 0 && !dragMoved && downNode) {
-      openWordModal(downNode.__communityNode);
+    if (e.type === "pointerup" && wasSinglePointer && pointers.size === 0 && !dragMoved) {
+      if (downNode) {
+        if (!expanded) {
+          setExpanded(true);
+        } else {
+          openWordModal(downNode.__communityNode);
+        }
+      } else if (expanded) {
+        setExpanded(false);
+      }
     }
 
     if (pointers.size === 1) {
@@ -337,6 +349,23 @@
     zoomOutBtn.addEventListener("click", () => {
       zoomAt(viewport.clientWidth / 2, viewport.clientHeight / 2, scale / 1.35);
     });
+  }
+
+  /* ---------------------------------------------------------------------- */
+  /* Expanded (fullscreen) view — tapping a planet, when not already        */
+  /* expanded, swaps the bounded field for a fullscreen one (see            */
+  /* .community--expanded in community.css); tapping empty space collapses  */
+  /* back. A second tap on a planet while already expanded opens its word.  */
+  /* ---------------------------------------------------------------------- */
+  let expanded = false;
+  function setExpanded(value) {
+    if (expanded === value) return;
+    expanded = value;
+    section.classList.toggle("community--expanded", value);
+    const [cx, cy] = clampPan(tx, ty);
+    tx = cx;
+    ty = cy;
+    applyTransform();
   }
 
   /* ---------------------------------------------------------------------- */
@@ -426,6 +455,7 @@
     if (e.key !== "Escape") return;
     if (wordModal.classList.contains("open")) closeWordModal();
     if (formModal.classList.contains("open")) closeFormModal();
+    if (expanded) setExpanded(false);
   });
 
   form.addEventListener("submit", (e) => {
@@ -446,7 +476,7 @@
       logo,
       x: pos.x,
       y: pos.y,
-      size: 50 + Math.random() * 18,
+      size: 32 + Math.random() * 14,
     });
 
     const list = loadSaved();

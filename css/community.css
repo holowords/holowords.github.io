@@ -26,12 +26,8 @@
 }
 
 .community-inner {
+  position: relative;
   min-height: calc(100vh - var(--header-offset));
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 90px 24px 60px;
-  gap: 28px;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -51,38 +47,13 @@
 }
 
 /* ---------------------------------------------------------------------- */
-/* Intro copy                                                              */
-/* ---------------------------------------------------------------------- */
-
-.community-intro {
-  max-width: 640px;
-  margin: 0;
-}
-
-.community-intro__body {
-  font-family: "Gowun Dodum", sans-serif;
-  font-size: clamp(14px, 1.6vw, 17px);
-  line-height: 1.8;
-  color: #000;
-  margin: 0;
-}
-
-.community-intro__footer {
-  font-family: "Gowun Dodum", sans-serif;
-  font-size: clamp(13px, 1.4vw, 15px);
-  line-height: 1.7;
-  color: var(--text-secondary);
-  margin: 14px 0 0;
-}
-
-/* ---------------------------------------------------------------------- */
-/* The universe: a fixed viewport clipping a larger field of planet nodes. */
+/* The universe: planets fill the whole section, edge to edge, so the     */
+/* field can grow behind the intro text as more words get added.          */
 /* ---------------------------------------------------------------------- */
 
 .community-universe {
-  position: relative;
-  width: min(920px, 100%);
-  height: clamp(360px, 54vh, 600px);
+  position: absolute;
+  inset: 0;
 }
 
 .community-universe__viewport {
@@ -109,12 +80,66 @@
 
 .community-zoom {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  bottom: 24px;
+  right: 24px;
   z-index: 5;
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Overlay — intro text + CTA, centered on top of the planet field. Fades  */
+/* out in place (no layout jump) when a planet is tapped; a soft white     */
+/* glow behind the text keeps it legible over planets parked underneath.  */
+/* ---------------------------------------------------------------------- */
+
+.community-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  width: min(640px, calc(100% - 48px));
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.4s ease;
+}
+
+.community-overlay > * {
+  pointer-events: auto;
+}
+
+#community.community--expanded .community-overlay {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.community-intro {
+  position: relative;
+  margin: 0;
+}
+
+.community-intro::before {
+  content: "";
+  position: absolute;
+  inset: -20px -28px;
+  background: rgba(255, 255, 255, 0.78);
+  filter: blur(26px);
+  z-index: -1;
+  border-radius: 40px;
+}
+
+.community-intro__body {
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: clamp(14px, 1.6vw, 17px);
+  line-height: 1.8;
+  color: #000;
+  margin: 0;
 }
 
 .community-zoom__btn {
@@ -158,7 +183,7 @@
   border: none;
   padding: 0;
   cursor: pointer;
-  width: var(--node-size, 56px);
+  width: var(--node-size, 40px);
 }
 
 .community-node__img {
@@ -425,18 +450,18 @@
 }
 
 @media (max-width: 640px) {
-  .community-inner {
-    padding: 72px 18px 48px;
-    gap: 20px;
-  }
-
   .community-icons {
     top: 16px;
     right: 18px;
   }
 
-  .community-universe {
-    height: clamp(320px, 50vh, 480px);
+  .community-overlay {
+    gap: 18px;
+  }
+
+  .community-zoom {
+    bottom: 18px;
+    right: 18px;
   }
 
   .community-modal {
